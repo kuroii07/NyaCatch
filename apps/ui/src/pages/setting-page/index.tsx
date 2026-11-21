@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   App,
   Button,
@@ -22,13 +22,13 @@ import {
   Palette,
   Settings2,
   Upload,
-  Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import {
   AppLanguage,
   APP_BUILD_VERSION,
+  APP_IS_STABLE,
   AppTheme,
   LANGUAGE_OPTIONS,
   type AppStore,
@@ -55,6 +55,10 @@ import {
   isValidServiceUrl,
 } from "./settings-controls";
 import "./settings.css";
+import { CachePanel } from "./cache-panel";
+import { UpdatePanel } from "./update-panel";
+import { snapshot, changes } from "./settings-model";
+import { useSettingsWorkspace, saveSettings } from "./settings-workspace";
 
 const groups = [
   { id: "general", key: "sGeneral", icon: Settings2 },
@@ -80,33 +84,28 @@ function DraftSettings({
 }) {
   const { t } = useTranslation();
   const proxy = kind === "proxy";
-  const snapshot = proxy
-    ? {
-        proxy: settings.proxy,
-        useProxy: settings.useProxy,
-        downloadProxySwitch: settings.downloadProxySwitch,
-      }
-    : {
-        dockerUrl: settings.dockerUrl,
-        apiKey: settings.apiKey,
-        enableDocker: settings.enableDocker,
-      };
-  const serialized = JSON.stringify(snapshot);
-  const [draft, setDraft] = useState<Partial<AppStore>>(snapshot);
-  const [base, setBase] = useState(serialized);
+  const current = snapshot(kind, settings);
+  const serialized = JSON.stringify(current);
+  const {
+    drafts,
+    sync,
+    reset,
+    edit: editDraft,
+    saving: busy,
+  } = useSettingsWorkspace();
+  const entry = drafts[kind] ?? {
+    base: current,
+    values: current,
+    conflict: false,
+  };
+  const draft = entry.values;
+  const dirty = Object.keys(changes(entry.base, draft)).length > 0;
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const dirty = JSON.stringify(draft) !== base;
-  const dirtyRef = useRef(dirty);
-  dirtyRef.current = dirty;
   useEffect(() => {
-    if (!dirtyRef.current) {
-      setDraft(JSON.parse(serialized));
-      setBase(serialized);
-    }
-  }, [serialized]);
+    sync(kind, JSON.parse(serialized));
+  }, [kind, serialized, sync]);
   function edit(values: Partial<AppStore>) {
-    setDraft((current) => ({ ...current, ...values }));
+    editDraft(kind, values);
     setError("");
   }
   async function apply() {
@@ -125,16 +124,11 @@ function DraftSettings({
       return;
     }
     const next = { ...draft, [proxy ? "proxy" : "dockerUrl"]: value };
-    setBusy(true);
-    try {
-      if (await save(next)) {
-        setDraft(next);
-        setBase(JSON.stringify(next));
-      }
-    } finally {
-      setBusy(false);
+    if (await save(changes(entry.base, next))) {
+      reset(kind, snapshot(kind, useAppStore.getState()));
     }
   }
+
   return (
     <div data-testid={`${kind}-draft`}>
       <Row
@@ -204,6 +198,12 @@ function DraftSettings({
           </Row>
         </>
       )}
+      <p className="s-note">{t("smDraftMemory")}</p>
+      {entry.conflict && (
+        <p className="s-error" role="status">
+          {t("smDraftConflict")}
+        </p>
+      )}
       <div className="s-draft-footer">
         <span role="status" className={error ? "s-error" : ""}>
           {error || (dirty ? t("sUnsaved") : t("sSaved"))}
@@ -211,8 +211,7 @@ function DraftSettings({
         <Button
           disabled={!dirty || busy}
           onClick={() => {
-            setDraft(JSON.parse(serialized));
-            setBase(serialized);
+            reset(kind, current);
             setError("");
           }}
         >
@@ -235,50 +234,33 @@ export default function SettingPage() {
   const { t } = useTranslation();
   const settings = useAppStore(useShallow(appStoreSelector));
   const setAppStore = useAppStore((state) => state.setAppStore);
-  const { dialog, shell, browser, app } = usePlatform();
+  const { dialog, shell, app } = usePlatform();
   const { envPath } = useEnvPath();
   const { message, modal } = App.useApp();
   const [group, setGroup] = useState<Group>("general");
-  const [saving, setSaving] = useState(false);
+  const [onlineUpdates, setOnlineUpdates] = useState(false);
+  const { saving, saveState, retry } = useSettingsWorkspace();
   const [importingData, setImportingData] = useState(false);
-  const savingRef = useRef(false);
-  const [saveState, setSaveState] = useState<"saved" | "saving" | "failed">(
-    "saved",
-  );
   const [localDraft, setLocalDraft] = useState(settings.local);
   const [maxDraft, setMaxDraft] = useState<number | null>(settings.maxRunner);
   useEffect(() => setLocalDraft(settings.local), [settings.local]);
   useEffect(() => setMaxDraft(settings.maxRunner), [settings.maxRunner]);
 
   async function save(values: Partial<AppStore>) {
-    if (savingRef.current) return false;
-    savingRef.current = true;
-    setSaving(true);
-    setSaveState("saving");
-    try {
-      const entries = Object.entries(values);
-      if (entries.length === 1)
-        await setConfigValue(entries[0][0], entries[0][1]);
-      else await http.post("/api/config", values);
-      setAppStore(values);
-      setSaveState("saved");
-      return true;
-    } catch (reason) {
-      setSaveState("failed");
-      message.error(
-        reason instanceof Error ? reason.message : t("sSaveFailed"),
-      );
-      // A combination may partially persist on an IO failure; reconcile with the core.
-      try {
-        setAppStore(await getConfig());
-      } catch {
-        /* The error state remains visible until a successful retry. */
-      }
-      return false;
-    } finally {
-      savingRef.current = false;
-      setSaving(false);
-    }
+    const result = await saveSettings(
+      values,
+      async (next) => {
+        const entries = Object.entries(next);
+        if (entries.length === 1)
+          await setConfigValue(entries[0][0], entries[0][1]);
+        else await http.post("/api/config", next);
+      },
+      getConfig,
+      setAppStore,
+    );
+    if (!result && !useSettingsWorkspace.getState().saving)
+      message.error(t("sSaveFailed"));
+    return result;
   }
   async function action(run: () => Promise<unknown>, success?: string) {
     try {
@@ -324,7 +306,9 @@ export default function SettingPage() {
         } catch (reason) {
           message.error(
             reason instanceof Error
-              ? reason.message
+              ? reason.message === "suBusy"
+                ? t("suBusy")
+                : reason.message
               : t("sImportLegacyDataFailed"),
           );
         } finally {
@@ -474,6 +458,11 @@ export default function SettingPage() {
             role="status"
           >
             {t(saveState === "saving" ? "sSaving" : "sSaveFailed")}
+            {saveState === "failed" && retry && (
+              <Button size="small" onClick={() => void save(retry)}>
+                {t("smRetrySave")}
+              </Button>
+            )}
           </span>
         )}
       </header>
@@ -724,17 +713,6 @@ export default function SettingPage() {
                 <Section title={t("sBrowserData")} hint={t("sBrowserDataHint")}>
                   <div className="s-actions">
                     <Button
-                      icon={<Trash2 size={16} />}
-                      onClick={() =>
-                        void action(
-                          () => browser.clearCache(),
-                          t("clearCacheSuccess"),
-                        )
-                      }
-                    >
-                      {t("clearCache")}
-                    </Button>
-                    <Button
                       icon={<Download size={16} />}
                       onClick={() => void exportData()}
                     >
@@ -749,6 +727,7 @@ export default function SettingPage() {
                   </div>
                 </Section>
               )}
+              {!isWeb && <CachePanel active={group === "advanced"} />}
               {!isWeb && (
                 <Section title={t("sRemote")} hint={t("sRemoteHint")}>
                   <DraftSettings
@@ -844,25 +823,66 @@ export default function SettingPage() {
                 <img src={brandIcon} alt="" width={64} height={64} />
                 <div>
                   <h3>{t("wbBrand")}</h3>
+                  <p data-testid="settings-product-version">
+                    {APP_BUILD_VERSION}
+                  </p>
                   <p>{t("sPreviewVersion")}</p>
                   <span>
                     {t("sUpstreamVersion")} {import.meta.env.APP_VERSION}
                   </span>
                 </div>
               </section>
-              <Section title={t("sUpdates")} hint={t("sUpdatesHint")}>
+              <Section title={t("sUpdates")} hint={t("smUpdatesHint")}>
+                {APP_IS_STABLE && !isWeb && (
+                  <UpdatePanel onEnabled={setOnlineUpdates} />
+                )}
                 <Row title={t("currentVersion")}>
                   <span>{APP_BUILD_VERSION}</span>
-                  <Button onClick={() => message.info(t("wbManualUpdate"))}>
-                    {t("checkUpdate")}
+                  <Button
+                    data-testid="settings-releases"
+                    onClick={() =>
+                      void open("https://github.com/kuroii07/NyaCatch/releases")
+                    }
+                  >
+                    {t("smReleases")}
                   </Button>
                 </Row>
                 {!isWeb && (
                   <>
-                    {toggle("autoUpgrade", "autoUpgrade", "sUpdatesHint", true)}
-                    {toggle("allowBeta", "allowBetaVersion", undefined, true)}
+                    {toggle(
+                      "autoUpgrade",
+                      "autoUpgrade",
+                      "sUpdatesHint",
+                      !onlineUpdates,
+                    )}
+                    {toggle(
+                      "allowBeta",
+                      "allowBetaVersion",
+                      undefined,
+                      !onlineUpdates,
+                    )}
                   </>
                 )}
+              </Section>
+              <Section title={t("smProjectLinks")}>
+                <div className="s-actions">
+                  <Button
+                    data-testid="settings-repository"
+                    onClick={() =>
+                      void open("https://github.com/kuroii07/NyaCatch")
+                    }
+                  >
+                    {t("smRepository")}
+                  </Button>
+                  <Button
+                    data-testid="settings-feedback"
+                    onClick={() =>
+                      void open("https://github.com/kuroii07/NyaCatch/issues")
+                    }
+                  >
+                    {t("smFeedback")}
+                  </Button>
+                </div>
               </Section>
               <Section title={t("sCredits")} hint={t("sCreditsHint")}>
                 <div className="s-actions">

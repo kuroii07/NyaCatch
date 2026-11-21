@@ -420,6 +420,36 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.trim-preview-error {
+  flex-wrap: wrap;
+}
+.trim-compatible-progress,
+.trim-compatible-info {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+  font-size: 11px;
+  color: var(--wb-muted);
+  overflow-wrap: anywhere;
+}
+.trim-compatible-progress span {
+  flex: 1 1 140px;
+}
+.trim-compatible-progress progress {
+  flex: 1 1 100px;
+  max-width: 180px;
+  height: 6px;
+  accent-color: var(--wb-accent);
+}
+.trim-compatible-info button,
+.trim-compatible-progress button,
+.trim-preview-error .wb-secondary {
+  font-size: 11px;
+  padding: 6px 9px;
+}
 @media (max-height: 740px) {
   .trim-left {
     overflow-y: auto;

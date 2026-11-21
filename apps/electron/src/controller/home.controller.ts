@@ -24,6 +24,7 @@ import {
 import { resolveCoreBinaries } from "../utils/binaryResolver";
 import { APP_BUILD_VERSION, type AppBuildInfo } from "@mediago/shared-common";
 import SidebarTooltipService from "../services/sidebar-tooltip.service";
+import { isInstalledBuild, isLocalBeta } from "../runtime-paths";
 
 @injectable()
 @provide(TYPES.Controller)
@@ -96,6 +97,11 @@ export default class HomeController implements Controller {
     }
     return {
       productVersion: APP_BUILD_VERSION,
+      distribution: isLocalBeta
+        ? "development"
+        : isInstalledBuild
+          ? "installed"
+          : "portable",
       upstreamVersion: process.env.APP_VERSION || "unknown",
       electronVersion: process.versions.electron || "unknown",
       nodeVersion: process.versions.node || "unknown",
@@ -129,10 +135,7 @@ export default class HomeController implements Controller {
     if (typeof dataRoot !== "string" || !dataRoot.trim()) {
       throw new Error("Choose an older NyaCatch data folder");
     }
-    const active = await this.downloaderServer.getActiveTasks();
-    if (active.length > 0) {
-      throw new Error("Stop active downloads before importing older data");
-    }
+    await this.updater.assertIdle();
     const sourceWorkspace = path.join(dataRoot, "appdata", appName);
     if (path.resolve(sourceWorkspace) === path.resolve(workspace)) {
       throw new Error("Choose an older NyaCatch data folder");
@@ -190,17 +193,38 @@ export default class HomeController implements Controller {
   }
 
   @handle(IPC.update.check)
-  async checkUpdate() {
-    this.updater.manualUpdate();
+  async checkUpdate(event: IpcMainInvokeEvent) {
+    this.assertUpdateOwner(event);
+    return this.updater.manualUpdate();
   }
 
   @handle(IPC.update.startDownload)
-  async startUpdate() {
-    this.updater.startDownload();
+  async startUpdate(event: IpcMainInvokeEvent) {
+    this.assertUpdateOwner(event);
+    return this.updater.startDownload();
   }
 
   @handle(IPC.update.install)
-  async installUpdate() {
-    this.updater.install();
+  async installUpdate(event: IpcMainInvokeEvent) {
+    this.assertUpdateOwner(event);
+    return this.updater.install();
+  }
+
+  @handle(IPC.update.state)
+  async updateState(event: IpcMainInvokeEvent) {
+    this.assertUpdateOwner(event);
+    return this.updater.state;
+  }
+
+  private assertUpdateOwner(event: IpcMainInvokeEvent) {
+    const owner = this.mainWindow.window?.webContents;
+    if (
+      !owner ||
+      owner.isDestroyed() ||
+      event.sender !== owner ||
+      event.senderFrame !== owner.mainFrame
+    ) {
+      throw new Error("Only the main application frame may manage updates");
+    }
   }
 }

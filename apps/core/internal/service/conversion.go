@@ -21,11 +21,16 @@ type ConversionService struct {
 	converter *Converter
 	hub       *sse.Hub
 	mu        sync.Mutex
+	Previews  *PreviewCache
 }
 
 // NewConversionService creates a ConversionService.
-func NewConversionService(repo *repo.ConversionRepository, converter *Converter, hub *sse.Hub) *ConversionService {
-	return &ConversionService{repo: repo, converter: converter, hub: hub}
+func NewConversionService(repo *repo.ConversionRepository, converter *Converter, hub *sse.Hub, cacheDirs ...string) *ConversionService {
+	s := &ConversionService{repo: repo, converter: converter, hub: hub}
+	if len(cacheDirs) > 0 && cacheDirs[0] != "" {
+		s.Previews = NewPreviewCache(cacheDirs[0], converter)
+	}
+	return s
 }
 
 // AddConversionInput holds the input for adding a conversion record.

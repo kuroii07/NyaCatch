@@ -236,7 +236,24 @@ export interface EnvPath {
   coreUrl: string;
 }
 
+export interface AppUpdateState {
+  status:
+    | "idle"
+    | "checking"
+    | "available"
+    | "downloading"
+    | "downloaded"
+    | "current"
+    | "error";
+  enabled: boolean;
+  installed: boolean;
+  version?: string;
+  progress?: number;
+  error?: string;
+}
+
 export interface AppBuildInfo {
+  distribution?: "development" | "installed" | "portable";
   productVersion: string;
   upstreamVersion: string;
   electronVersion: string;
@@ -411,6 +428,20 @@ export interface ContextMenuItem {
 // mode, no-op stubs in web/server mode.
 // ============================================================
 
+export interface CompatiblePreviewState {
+  id: string;
+  status: "queued" | "running" | "ready" | "failed" | "cancelled";
+  progress: number;
+  cached: boolean;
+  error?: string;
+  preview?: { id: string; url: string };
+}
+export interface MediaPreviewCacheInfo {
+  files: number;
+  bytes: number;
+  busy: number;
+}
+
 export interface LocalFileCheck {
   size?: number;
   audio?: {
@@ -442,6 +473,8 @@ export interface PlatformApi {
     setBounds(rect: Rectangle): Promise<void>;
     setUserAgent(isMobile: boolean): Promise<void>;
     clearCache(): Promise<void>;
+    cacheInfo(): Promise<{ bytes: number }>;
+    clearWebsiteData(): Promise<void>;
     pluginReady(): Promise<void>;
     showDownloadDialog(data: Omit<DownloadTask, "id">[]): Promise<void>;
     dismissOverlayDialog(): Promise<void>;
@@ -471,6 +504,11 @@ export interface PlatformApi {
   shell: {
     createMediaPreview(target: string): Promise<{ id: string; url: string }>;
     releaseMediaPreview(id: string): Promise<void>;
+    startCompatiblePreview(target: string): Promise<CompatiblePreviewState>;
+    compatiblePreviewStatus(id: string): Promise<CompatiblePreviewState>;
+    releaseCompatiblePreview(id: string): Promise<void>;
+    mediaPreviewCacheInfo(): Promise<MediaPreviewCacheInfo>;
+    clearMediaPreviewCache(): Promise<MediaPreviewCacheInfo>;
     open(target: string): Promise<void>;
     reveal(target: string): Promise<void>;
     checkFiles(
@@ -482,6 +520,7 @@ export interface PlatformApi {
     show(items: ContextMenuItem[]): Promise<string | null>;
   };
   update: {
+    state(): Promise<AppUpdateState>;
     check(): Promise<void>;
     startDownload(): Promise<void>;
     install(): Promise<void>;

@@ -13,6 +13,8 @@ export const IPC = {
     setBounds: "browser.setBounds",
     setUserAgent: "browser.setUserAgent",
     clearCache: "browser.clearCache",
+    cacheInfo: "browser.cacheInfo",
+    clearWebsiteData: "browser.clearWebsiteData",
     pluginReady: "browser.pluginReady",
     showDownloadDialog: "browser.showDownloadDialog",
     dismissOverlayDialog: "browser.dismissOverlayDialog",
@@ -35,6 +37,11 @@ export const IPC = {
   shell: {
     createMediaPreview: "shell.createMediaPreview",
     releaseMediaPreview: "shell.releaseMediaPreview",
+    startCompatiblePreview: "shell.startCompatiblePreview",
+    compatiblePreviewStatus: "shell.compatiblePreviewStatus",
+    releaseCompatiblePreview: "shell.releaseCompatiblePreview",
+    mediaPreviewCacheInfo: "shell.mediaPreviewCacheInfo",
+    clearMediaPreviewCache: "shell.clearMediaPreviewCache",
     checkFiles: "shell.checkFiles",
     open: "shell.open",
     reveal: "shell.reveal",
@@ -44,6 +51,7 @@ export const IPC = {
   },
   update: {
     check: "update.check",
+    state: "update.state",
     startDownload: "update.startDownload",
     install: "update.install",
   },

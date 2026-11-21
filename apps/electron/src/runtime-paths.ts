@@ -1,15 +1,33 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { app } from "electron";
 
 // Applied before constants/loggers read Electron paths. The directory package
 // owns its state and never adopts the installed app's database or browser session.
+// Keep the marker filename compatible with already installed beta delivery tools.
+const marker = path.join(process.resourcesPath, "nyacatch-beta.json");
+export const runtimeBuild = app.isPackaged
+  ? (JSON.parse(readFileSync(marker, "utf8")) as {
+      channel?: string;
+      version?: string;
+    })
+  : {};
 export const isLocalBeta =
+  app.isPackaged && runtimeBuild.channel === "local-beta";
+export const isInstalledBuild =
   app.isPackaged &&
-  existsSync(path.join(process.resourcesPath, "nyacatch-beta.json"));
+  !isLocalBeta &&
+  existsSync(
+    path.join(path.dirname(process.execPath), "Uninstall NyaCatch.exe"),
+  );
+export const dataRoot = app.isPackaged
+  ? isInstalledBuild
+    ? path.join(app.getPath("appData"), "NyaCatch")
+    : path.join(path.dirname(process.execPath), "data")
+  : undefined;
 
-if (isLocalBeta) {
-  const root = path.join(path.dirname(process.execPath), "data");
+if (dataRoot) {
+  const root = dataRoot;
   for (const [key, dir] of [
     ["appData", "appdata"],
     ["userData", "userdata"],
@@ -26,7 +44,9 @@ if (isLocalBeta) {
     writeFileSync(
       config,
       JSON.stringify({
-        local: path.join(path.dirname(process.execPath), "下载"),
+        local: isInstalledBuild
+          ? path.join(app.getPath("downloads"), "NyaCatch")
+          : path.join(path.dirname(process.execPath), "下载"),
         autoUpgrade: false,
         promptTone: false,
       }),

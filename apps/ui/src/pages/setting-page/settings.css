@@ -454,3 +454,22 @@
     transition: none;
   }
 }
+
+.s-cache-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.s-save-state {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.s-brand-card [data-testid="settings-product-version"] {
+  font-size: 20px;
+  font-weight: 650;
+  color: var(--wb-ink);
+}

@@ -8,7 +8,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { usePlatform } from "@/hooks/use-platform";
+import { useMediaPreview } from "./use-media-preview";
 import { formatTrimTime, markTrimPoint, parseTrimTime } from "./trim-model";
 
 interface Props {
@@ -30,13 +30,11 @@ interface Props {
 
 export default function TrimPreview(props: Props) {
   const { t } = useTranslation();
-  const { shell } = usePlatform();
+  const compatiblePreview = useMediaPreview(props.path);
+  const { preview, failed } = compatiblePreview;
   const element = useRef<HTMLMediaElement | null>(null);
   const rangePlayback = useRef<number | undefined>(undefined);
   const previousSegment = useRef(props.segmentId);
-  const [preview, setPreview] = useState<{ id: string; url: string }>();
-  const [retry, setRetry] = useState(0);
-  const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const [position, setPosition] = useState(0);
   const [drag, setDrag] = useState<number[]>();
@@ -89,29 +87,10 @@ export default function TrimPreview(props: Props) {
   }, [props.segmentId, ready, from]);
 
   useEffect(() => {
-    let cancelled = false;
-    let id: string | undefined;
-    setPreview(undefined);
     setReady(false);
-    setFailed(false);
     setPosition(0);
     rangePlayback.current = undefined;
-    void shell
-      .createMediaPreview(props.path)
-      .then((value) => {
-        id = value.id;
-        if (cancelled)
-          void shell.releaseMediaPreview(id).catch(() => undefined);
-        else setPreview(value);
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      });
-    return () => {
-      cancelled = true;
-      if (id) void shell.releaseMediaPreview(id).catch(() => undefined);
-    };
-  }, [props.path, retry, shell]);
+  }, [props.path, preview?.url]);
 
   useEffect(() => {
     const media = element.current;
@@ -186,7 +165,7 @@ export default function TrimPreview(props: Props) {
       await media.play();
     } catch {
       rangePlayback.current = undefined;
-      setFailed(true);
+      compatiblePreview.fail();
     }
   }
   const mediaProps = {
@@ -207,7 +186,10 @@ export default function TrimPreview(props: Props) {
       rangePlayback.current = undefined;
       updateTime();
     },
-    onError: () => setFailed(true),
+    onError: () => {
+      if (element.current?.currentSrc === preview?.url)
+        compatiblePreview.fail();
+    },
     "data-testid": "trim-media",
     "aria-label": t("trPreview"),
   };
@@ -241,10 +223,39 @@ export default function TrimPreview(props: Props) {
               }}
             />
           ))}
-        {!preview && !failed && (
+        {!preview && !failed && !compatiblePreview.loading && (
           <span role="status">{t("trPreviewLoading")}</span>
         )}
       </div>
+      {compatiblePreview.loading && (
+        <div
+          className="trim-compatible-progress"
+          data-testid="preview-compatible-progress"
+          role="status"
+        >
+          <span>
+            {t(
+              compatiblePreview.state?.status === "running"
+                ? "pcGenerating"
+                : "pcQueued",
+              { progress: compatiblePreview.state?.progress || 0 },
+            )}
+          </span>
+          <progress
+            max={100}
+            value={compatiblePreview.state?.progress || 0}
+            aria-label={t("pcGenerate")}
+          />
+          <button
+            type="button"
+            className="wb-secondary"
+            data-testid="preview-compatible-cancel"
+            onClick={compatiblePreview.cancel}
+          >
+            {t("pcCancel")}
+          </button>
+        </div>
+      )}
       {failed && (
         <div
           className="trim-preview-error"
@@ -253,7 +264,8 @@ export default function TrimPreview(props: Props) {
         >
           <span>
             {t(
-              props.previewErrorKey ||
+              compatiblePreview.error ||
+                props.previewErrorKey ||
                 (props.previewOnly ? "mgPreviewFailed" : "trPreviewFailed"),
             )}
           </span>
@@ -262,10 +274,59 @@ export default function TrimPreview(props: Props) {
             className="wb-icon-button"
             title={t("cRetry")}
             aria-label={t("cRetry")}
-            onClick={() => setRetry((value) => value + 1)}
+            onClick={compatiblePreview.retry}
           >
             <RefreshCw size={15} />
           </button>
+          <button
+            type="button"
+            className="wb-secondary"
+            data-testid="preview-compatible-generate"
+            disabled={props.disabled || compatiblePreview.clearing}
+            onClick={compatiblePreview.prepare}
+          >
+            {t("pcGenerate")}
+          </button>
+        </div>
+      )}
+      {(compatiblePreview.compatible ||
+        (failed && !!compatiblePreview.cache?.files) ||
+        compatiblePreview.notice) && (
+        <div
+          className="trim-compatible-info"
+          data-testid="preview-compatible-info"
+        >
+          <span>
+            {compatiblePreview.compatible
+              ? t(compatiblePreview.state?.cached ? "pcReused" : "pcReady")
+              : compatiblePreview.notice
+                ? t(compatiblePreview.notice)
+                : t("pcCache")}
+          </span>
+          {compatiblePreview.compatible && <span>{t("pcOriginalExport")}</span>}
+          {compatiblePreview.error && !failed && (
+            <span role="alert">{t(compatiblePreview.error)}</span>
+          )}
+          {!!compatiblePreview.cache?.files && (
+            <button
+              type="button"
+              className="wb-secondary"
+              data-testid="preview-cache-clear"
+              disabled={
+                props.disabled ||
+                compatiblePreview.loading ||
+                compatiblePreview.clearing
+              }
+              onClick={() => void compatiblePreview.clear()}
+            >
+              {t("pcClearCache", {
+                size: Math.max(
+                  0.1,
+                  compatiblePreview.cache.bytes / 1024 / 1024,
+                ).toFixed(1),
+              })}
+            </button>
+          )}
         </div>
       )}
       <div className="trim-transport">

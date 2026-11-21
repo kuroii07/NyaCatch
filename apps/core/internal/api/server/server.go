@@ -49,12 +49,13 @@ type Server struct {
 
 // Options holds optional configuration for the server.
 type Options struct {
-	EnableAuth  bool
-	StaticDir   string
-	FFmpegBin   string
-	VideoRoot   string
-	EnvPaths    handler.EnvPaths
-	MediaBinDir string
+	DesktopOrigins bool
+	EnableAuth     bool
+	StaticDir      string
+	FFmpegBin      string
+	VideoRoot      string
+	EnvPaths       handler.EnvPaths
+	MediaBinDir    string
 }
 
 // New creates an HTTP server instance.
@@ -69,6 +70,9 @@ func New(queue *core.TaskQueue, logs *tasklog.Manager, database *db.Database, co
 
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
+	if opt.DesktopOrigins {
+		engine.Use(middleware.DesktopOrigin())
+	}
 	engine.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -125,7 +129,11 @@ func New(queue *core.TaskQueue, logs *tasklog.Manager, database *db.Database, co
 		}
 		favoriteSvc := service.NewFavoriteService(favoriteRepo)
 		converter := service.NewConverter(opt.FFmpegBin)
-		conversionSvc := service.NewConversionService(conversionRepo, converter, hub)
+		var previewDir string
+		if opt.EnvPaths.ConfigDir != "" {
+			previewDir = filepath.Join(opt.EnvPaths.ConfigDir, "preview-cache")
+		}
+		conversionSvc := service.NewConversionService(conversionRepo, converter, hub, previewDir)
 
 		srv.downloadHandler = handler.NewDownloadHandler(downloadSvc, confStore, hub)
 		if opt.EnvPaths.ConfigDir != "" {

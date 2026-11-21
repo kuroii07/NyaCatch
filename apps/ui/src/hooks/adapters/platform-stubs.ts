@@ -18,6 +18,8 @@ export const webPlatformStubs: PlatformApi = {
     setBounds: noop,
     setUserAgent: noop,
     clearCache: noop,
+    cacheInfo: async () => ({ bytes: 0 }),
+    clearWebsiteData: noop,
     pluginReady: noop,
     showDownloadDialog: noop,
     dismissOverlayDialog: noop,
@@ -65,6 +67,15 @@ export const webPlatformStubs: PlatformApi = {
       throw Error("Local preview is available in the desktop app");
     },
     releaseMediaPreview: noop,
+    startCompatiblePreview: async () => {
+      throw Error("Desktop only");
+    },
+    compatiblePreviewStatus: async () => {
+      throw Error("Desktop only");
+    },
+    releaseCompatiblePreview: noop,
+    mediaPreviewCacheInfo: async () => ({ files: 0, bytes: 0, busy: 0 }),
+    clearMediaPreviewCache: async () => ({ files: 0, bytes: 0, busy: 0 }),
     checkFiles: async () => {
       throw new Error(
         "Local file checks are only available in the desktop app",
@@ -85,6 +96,7 @@ export const webPlatformStubs: PlatformApi = {
     show: async () => null,
   },
   update: {
+    state: async () => ({ status: "idle", enabled: false, installed: false }),
     check: noop,
     startDownload: noop,
     install: noop,

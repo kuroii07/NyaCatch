@@ -1,0 +1,190 @@
+[
+  {
+    "module": "github.com/UserExistsError/conpty",
+    "version": "v0.1.4",
+    "licenseFiles": ["go/github.com_UserExistsError_conpty-v0.1.4-LICENSE"]
+  },
+  {
+    "module": "github.com/dustin/go-humanize",
+    "version": "v1.0.1",
+    "licenseFiles": ["go/github.com_dustin_go-humanize-v1.0.1-LICENSE"]
+  },
+  {
+    "module": "github.com/gabriel-vasile/mimetype",
+    "version": "v1.4.10",
+    "licenseFiles": ["go/github.com_gabriel-vasile_mimetype-v1.4.10-LICENSE"]
+  },
+  {
+    "module": "github.com/gin-contrib/cors",
+    "version": "v1.7.6",
+    "licenseFiles": ["go/github.com_gin-contrib_cors-v1.7.6-LICENSE"]
+  },
+  {
+    "module": "github.com/gin-contrib/sse",
+    "version": "v1.1.0",
+    "licenseFiles": ["go/github.com_gin-contrib_sse-v1.1.0-LICENSE"]
+  },
+  {
+    "module": "github.com/gin-gonic/gin",
+    "version": "v1.11.0",
+    "licenseFiles": ["go/github.com_gin-gonic_gin-v1.11.0-LICENSE"]
+  },
+  {
+    "module": "github.com/glebarez/go-sqlite",
+    "version": "v1.21.2",
+    "licenseFiles": ["go/github.com_glebarez_go-sqlite-v1.21.2-LICENSE"]
+  },
+  {
+    "module": "github.com/glebarez/sqlite",
+    "version": "v1.11.0",
+    "licenseFiles": ["go/github.com_glebarez_sqlite-v1.11.0-License"]
+  },
+  {
+    "module": "github.com/go-playground/locales",
+    "version": "v0.14.1",
+    "licenseFiles": ["go/github.com_go-playground_locales-v0.14.1-LICENSE"]
+  },
+  {
+    "module": "github.com/go-playground/universal-translator",
+    "version": "v0.18.1",
+    "licenseFiles": [
+      "go/github.com_go-playground_universal-translator-v0.18.1-LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-playground/validator/v10",
+    "version": "v10.28.0",
+    "licenseFiles": [
+      "go/github.com_go-playground_validator_v10-v10.28.0-LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/goccy/go-yaml",
+    "version": "v1.18.0",
+    "licenseFiles": ["go/github.com_goccy_go-yaml-v1.18.0-LICENSE"]
+  },
+  {
+    "module": "github.com/google/uuid",
+    "version": "v1.6.0",
+    "licenseFiles": ["go/github.com_google_uuid-v1.6.0-LICENSE"]
+  },
+  {
+    "module": "github.com/jinzhu/inflection",
+    "version": "v1.0.0",
+    "licenseFiles": ["go/github.com_jinzhu_inflection-v1.0.0-LICENSE"]
+  },
+  {
+    "module": "github.com/jinzhu/now",
+    "version": "v1.1.5",
+    "licenseFiles": ["go/github.com_jinzhu_now-v1.1.5-License"]
+  },
+  {
+    "module": "github.com/leodido/go-urn",
+    "version": "v1.4.0",
+    "licenseFiles": ["go/github.com_leodido_go-urn-v1.4.0-LICENSE"]
+  },
+  {
+    "module": "github.com/mattn/go-isatty",
+    "version": "v0.0.20",
+    "licenseFiles": ["go/github.com_mattn_go-isatty-v0.0.20-LICENSE"]
+  },
+  {
+    "module": "github.com/pelletier/go-toml/v2",
+    "version": "v2.2.4",
+    "licenseFiles": ["go/github.com_pelletier_go-toml_v2-v2.2.4-LICENSE"]
+  },
+  {
+    "module": "github.com/quic-go/qpack",
+    "version": "v0.5.1",
+    "licenseFiles": ["go/github.com_quic-go_qpack-v0.5.1-LICENSE.md"]
+  },
+  {
+    "module": "github.com/quic-go/quic-go",
+    "version": "v0.55.0",
+    "licenseFiles": ["go/github.com_quic-go_quic-go-v0.55.0-LICENSE"]
+  },
+  {
+    "module": "github.com/remyoudompheng/bigfft",
+    "version": "v0.0.0-20230129092748-24d4a6f8daec",
+    "licenseFiles": [
+      "go/github.com_remyoudompheng_bigfft-v0.0.0-20230129092748-24d4a6f8daec-LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/ugorji/go/codec",
+    "version": "v1.3.0",
+    "licenseFiles": ["go/github.com_ugorji_go_codec-v1.3.0-LICENSE"]
+  },
+  {
+    "module": "go.uber.org/multierr",
+    "version": "v1.10.0",
+    "licenseFiles": ["go/go.uber.org_multierr-v1.10.0-LICENSE.txt"]
+  },
+  {
+    "module": "go.uber.org/zap",
+    "version": "v1.27.0",
+    "licenseFiles": ["go/go.uber.org_zap-v1.27.0-LICENSE"]
+  },
+  {
+    "module": "golang.org/x/crypto",
+    "version": "v0.43.0",
+    "licenseFiles": ["go/golang.org_x_crypto-v0.43.0-LICENSE"]
+  },
+  {
+    "module": "golang.org/x/net",
+    "version": "v0.46.0",
+    "licenseFiles": ["go/golang.org_x_net-v0.46.0-LICENSE"]
+  },
+  {
+    "module": "golang.org/x/sys",
+    "version": "v0.37.0",
+    "licenseFiles": ["go/golang.org_x_sys-v0.37.0-LICENSE"]
+  },
+  {
+    "module": "golang.org/x/text",
+    "version": "v0.30.0",
+    "licenseFiles": ["go/golang.org_x_text-v0.30.0-LICENSE"]
+  },
+  {
+    "module": "google.golang.org/protobuf",
+    "version": "v1.36.10",
+    "licenseFiles": ["go/google.golang.org_protobuf-v1.36.10-LICENSE"]
+  },
+  {
+    "module": "gopkg.in/natefinch/lumberjack.v2",
+    "version": "v2.2.1",
+    "licenseFiles": ["go/gopkg.in_natefinch_lumberjack.v2-v2.2.1-LICENSE"]
+  },
+  {
+    "module": "gorm.io/gorm",
+    "version": "v1.31.1",
+    "licenseFiles": ["go/gorm.io_gorm-v1.31.1-LICENSE"]
+  },
+  {
+    "module": "modernc.org/libc",
+    "version": "v1.22.5",
+    "licenseFiles": [
+      "go/modernc.org_libc-v1.22.5-LICENSE",
+      "go/modernc.org_libc-v1.22.5-LICENSE-GO"
+    ]
+  },
+  {
+    "module": "modernc.org/mathutil",
+    "version": "v1.5.0",
+    "licenseFiles": ["go/modernc.org_mathutil-v1.5.0-LICENSE"]
+  },
+  {
+    "module": "modernc.org/memory",
+    "version": "v1.5.0",
+    "licenseFiles": [
+      "go/modernc.org_memory-v1.5.0-LICENSE",
+      "go/modernc.org_memory-v1.5.0-LICENSE-GO",
+      "go/modernc.org_memory-v1.5.0-LICENSE-MMAP-GO"
+    ]
+  },
+  {
+    "module": "modernc.org/sqlite",
+    "version": "v1.23.1",
+    "licenseFiles": ["go/modernc.org_sqlite-v1.23.1-LICENSE"]
+  }
+]

@@ -8,7 +8,8 @@ import { handle } from "../core/decorators";
 import { DownloaderServer } from "../services/downloader.server";
 import OverlayDialogService from "../services/overlay-dialog.service";
 import { TYPES } from "../types/symbols";
-import { type IpcMainEvent } from "electron";
+import { type IpcMainEvent, type IpcMainInvokeEvent } from "electron";
+import MainWindow from "../windows/main.window";
 import { inject, injectable } from "inversify";
 import { SniffingHelper } from "../services/sniffing-helper.service";
 import WebviewService from "../services/webview.service";
@@ -17,6 +18,7 @@ import WebviewService from "../services/webview.service";
 @provide(TYPES.Controller)
 export default class WebviewController implements Controller {
   constructor(
+    @inject(MainWindow) private readonly mainWindow: MainWindow,
     @inject(WebviewService)
     private readonly webview: WebviewService,
     @inject(DownloaderServer)
@@ -74,9 +76,36 @@ export default class WebviewController implements Controller {
     this.sniffingHelper.pluginReady();
   }
 
+  private assertMainFrame(event: IpcMainInvokeEvent) {
+    const owner = this.mainWindow.window?.webContents;
+    if (
+      !owner ||
+      owner.isDestroyed() ||
+      event.sender !== owner ||
+      event.senderFrame !== owner.mainFrame
+    ) {
+      throw new Error(
+        "Only the main application frame may manage website data",
+      );
+    }
+  }
+
+  @handle(IPC.browser.cacheInfo)
+  async cacheInfo(event: IpcMainInvokeEvent) {
+    this.assertMainFrame(event);
+    return this.webview.cacheInfo();
+  }
+
   @handle(IPC.browser.clearCache)
-  async clearWebviewCache() {
+  async clearWebviewCache(event: IpcMainInvokeEvent) {
+    this.assertMainFrame(event);
     return this.webview.clearCache();
+  }
+
+  @handle(IPC.browser.clearWebsiteData)
+  async clearWebsiteData(event: IpcMainInvokeEvent) {
+    this.assertMainFrame(event);
+    return this.webview.clearWebsiteData();
   }
 
   @handle(IPC.browser.showDownloadDialog)

@@ -51,6 +51,7 @@ import (
 
 // AppConfig stores all startup configuration options (passed via command-line flags or environment variables).
 type AppConfig struct {
+	DesktopOrigins bool   `json:"desktop_origins"`
 	GinMode        string `json:"gin_mode"`
 	Host           string `json:"host"`
 	Port           string `json:"port"`
@@ -276,11 +277,12 @@ func main() {
 	confStore := handler.WrapConfStore[AppStore](appStore)
 	execPath, _ := os.Executable()
 	server := api.NewServer(queue, taskLogs, database, confStore, api.ServerOptions{
-		EnableAuth:  cfg.EnableAuth,
-		StaticDir:   cfg.StaticDir,
-		FFmpegBin:   getFFmpegBin(cfg),
-		VideoRoot:   cfg.LocalDir,
-		MediaBinDir: cfg.DepsDir,
+		DesktopOrigins: cfg.DesktopOrigins,
+		EnableAuth:     cfg.EnableAuth,
+		StaticDir:      cfg.StaticDir,
+		FFmpegBin:      getFFmpegBin(cfg),
+		VideoRoot:      cfg.LocalDir,
+		MediaBinDir:    cfg.DepsDir,
 		EnvPaths: handler.EnvPaths{
 			ConfigDir: cfg.ConfigDir,
 			BinDir:    filepath.Dir(execPath),
@@ -351,6 +353,7 @@ func initConfig() *AppConfig {
 	flag.StringVar(&cfg.DBPath, "db-path", cfg.DBPath, "Path to SQLite database file")
 	flag.StringVar(&cfg.ConfigDir, "config-dir", cfg.ConfigDir, "Directory for persistent config file")
 	flag.BoolVar(&cfg.EnableAuth, "enable-auth", cfg.EnableAuth, "Enable API key authentication")
+	flag.BoolVar(&cfg.DesktopOrigins, "desktop-origins", false, "Restrict browser origins for the desktop service")
 	flag.StringVar(&cfg.StaticDir, "static-dir", cfg.StaticDir, "Directory to serve static files from (SPA mode)")
 
 	flag.Parse()

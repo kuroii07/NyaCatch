@@ -1,3 +1,5 @@
+import { settingsMaintenanceMessages } from "./settings-maintenance";
+import { releaseMessages } from "./release";
 import { converterOptionsTranslations } from "./converter-options";
 import { trimMessages } from "./trim";
 import { mergeMessages } from "./merge";
@@ -5,6 +7,7 @@ import { audioExtractMessages } from "./audio-extract";
 import { captureMessages } from "./capture";
 import { compressionMessages } from "./compress";
 import { muxMessages } from "./mux";
+import { previewMessages } from "./preview";
 import { platformParserMessages } from "./platform-parser";
 import { converterWorkflowMessages } from "./converter-workflow";
 import { usabilityMessages } from "./usability";
@@ -15,6 +18,7 @@ import { collectionMessages } from "./collections";
 import { efficiencyTranslations } from "./download-efficiency";
 import {
   BASE_I18N_OPTIONS,
+  APP_IS_STABLE,
   i18nResources,
   SUPPORTED_LANGUAGES,
 } from "@mediago/shared-common";
@@ -80,6 +84,8 @@ const buildTranslationBundle = (
   Object.assign(translation, captureMessages[language]);
   Object.assign(translation, compressionMessages[language]);
   Object.assign(translation, muxMessages[language]);
+  Object.assign(translation, previewMessages[language]);
+  Object.assign(translation, settingsMaintenanceMessages[language]);
   Object.assign(translation, platformParserMessages[language]);
   Object.assign(translation, converterWorkflowMessages[language]);
   Object.assign(translation, usabilityMessages[language]);
@@ -87,6 +93,14 @@ const buildTranslationBundle = (
   Object.assign(translation, sourceExtractMessages[language]);
   Object.assign(translation, sourceHomeMessages[language]);
   Object.assign(translation, collectionMessages[language]);
+  Object.assign(
+    translation,
+    Object.fromEntries(
+      Object.entries(releaseMessages[language]).filter(
+        ([key]) => APP_IS_STABLE || key.startsWith("su"),
+      ),
+    ),
+  );
   return translation;
 };
 

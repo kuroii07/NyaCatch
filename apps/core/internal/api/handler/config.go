@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"sort"
 
 	"caorushizi.cn/mediago/internal/api/dto"
 	"caorushizi.cn/mediago/internal/api/sse"
@@ -97,15 +100,15 @@ func (h *ConfigHandler) Update(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logger.Warn("Invalid config update request",
 			zap.String("clientIP", c.ClientIP()),
-			zap.Error(err))
+			zap.String("errorType", fmt.Sprintf("%T", err)))
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Success: false, Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	logger.Info("Config update request received", zap.Any("req", req), zap.String("clientIP", c.ClientIP()))
+	logger.Info("Config update request received", h.safeFields(req)...)
 
 	if err := h.conf.Update(req); err != nil {
-		logger.Error("Failed to update config", zap.Error(err))
+		logger.Error("Failed to update config", zap.String("errorType", fmt.Sprintf("%T", err)))
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Success: false, Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -164,7 +167,7 @@ func (h *ConfigHandler) SetKey(c *gin.Context) {
 	}
 
 	if err := h.conf.Set(key, req.Value); err != nil {
-		logger.Error("Failed to set config key", zap.String("key", key), zap.Error(err))
+		logger.Error("Failed to set config key", zap.String("errorType", fmt.Sprintf("%T", err)))
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Success: false, Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -177,4 +180,22 @@ func (h *ConfigHandler) SetKey(c *gin.Context) {
 		Message: i18n.T(c, i18n.MsgConfigUpdated),
 		Data:    dto.UpdateConfigResponse{Message: i18n.T(c, i18n.MsgConfigKeyUpdated, key)},
 	})
+}
+
+// Only known field names are safe to log: arbitrary request keys can contain secrets too.
+func (h *ConfigHandler) safeFields(req map[string]any) []zap.Field {
+	encoded, _ := json.Marshal(h.conf.Store())
+	known := map[string]json.RawMessage{}
+	_ = json.Unmarshal(encoded, &known)
+	keys := []string{}
+	unknown := 0
+	for key := range req {
+		if _, ok := known[key]; ok {
+			keys = append(keys, key)
+		} else {
+			unknown++
+		}
+	}
+	sort.Strings(keys)
+	return []zap.Field{zap.Strings("fields", keys), zap.Int("unknownFields", unknown)}
 }

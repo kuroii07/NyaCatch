@@ -38,6 +38,10 @@ Windows PowerShell若拦截`.ps1`命令，可使用`pnpm.cmd`，不需要修改�
 
 `pnpm core:build`和`pnpm build:electron`构建核心与桌面代码。实际打包逻辑在`apps/electron/scripts/build.ts`，开发内测使用`--dir --beta`，不连接上游发布源。
 
-目前一般打包入口仍包含上游版本与发布配置，不能直接视为喵拾正式发行入口；正式安装包和GitHub Releases发布流程尚未适配。上游CI部署/发布工作流仅限上游仓库执行，不自动用于本仓库。不要直接触发发布或向上游发布位置上传。
+正式版本使用同一产品版本常量；Windows运行环境中执行`pnpm release:electron`可构建NSIS安装器，`pnpm pack:electron`仅构建目录包，产物位于`apps/electron/release/`。打包器固定本仓库`kuroii07/NyaCatch`作为更新源，构建时`publish: never`，不会自动上传。上传Release须单独授权并核对tag与资产，勿向上游发布位置上传。上游CI工作流不自动适用于本仓库。
+
+安装版通过安装目录内的`Uninstall NyaCatch.exe`识别，配置/任务放在`%APPDATA%/NyaCatch`；免安装版在旁置`data/`。仅正式安装版启用GitHub更新，更新IPC仅接受主窗口主frame。下载完成后需用户确认，安装前核验活动任务、预览租约和数据备份，退出时不自动安装。
+
+随包`resources/licenses/`记录实际原生工具、npm依赖及编译Go模块的许可证和来源。发布时同时提供`NyaCatch-<版本>-third-party-sources.zip`，含清单中固定ref的原生工具与MPL组件源码、FFmpeg配置和来源记录；具体构建依赖以源码中的`licenses/source-manifest.json`和`licenses/FFmpeg-build-provenance.txt`为准。资料用于说明来源和构建条件，不承诺位级可重现。
 
 提交源码时排除依赖、运行数据、日志、缓存、构建目录与本机程序包；保留源码、锁文件、许可证、公共组件资源和构建所需配置。README首页面向使用者，开发细节集中在本文。

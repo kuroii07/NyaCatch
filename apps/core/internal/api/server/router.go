@@ -19,6 +19,10 @@ func (s *Server) registerRoutes() {
 		api.POST("/tasks/:id/stop", s.taskHandler.Stop)
 		api.GET("/tasks/:id/logs", s.taskHandler.Logs)
 
+		if s.thumbnailHandler != nil {
+			api.GET("/cache/thumbnails", s.thumbnailHandler.Cache)
+			api.DELETE("/cache/thumbnails", s.thumbnailHandler.Cache)
+		}
 		api.GET("/config", s.configHandler.GetStore)
 		api.POST("/config", s.configHandler.Update)
 		api.GET("/config/:key", s.configHandler.GetKey)
@@ -87,6 +91,11 @@ func (s *Server) registerRoutes() {
 			conversions.POST("/mux-inspect", s.conversionHandler.MuxInspect)
 			conversions.POST("/subtitle-inspect", s.conversionHandler.SubtitleInspect)
 			conversions.POST("/subtitle-preview", s.conversionHandler.SubtitlePreview)
+			conversions.POST("/preview-cache", s.conversionHandler.PreviewCache)
+			conversions.GET("/preview-cache", s.conversionHandler.PreviewCache)
+			conversions.DELETE("/preview-cache", s.conversionHandler.PreviewCache)
+			conversions.GET("/preview-cache/:preview", s.conversionHandler.PreviewCache)
+			conversions.DELETE("/preview-cache/:preview", s.conversionHandler.PreviewCache)
 			conversions.DELETE("/:id", s.conversionHandler.Delete)
 			conversions.GET("/:id", s.conversionHandler.Get)
 			conversions.POST("/:id/start", s.conversionHandler.Start)

@@ -1,0 +1,34 @@
+{
+  "version": "0.25.0",
+  "binaries": [
+    {
+      "name": "aria2c.exe",
+      "sha256": "098a065ab71f639bf7048e790c870756fd6e83de9cc678915bbd07077d473fa2"
+    },
+    {
+      "name": "BBDown.exe",
+      "sha256": "eb8b985af07c4757fa695204283208aee879bf79f6462a1d161e3a55b5a19cb1"
+    },
+    {
+      "name": "ffmpeg.exe",
+      "sha256": "e9fd5e711debab9d680955fc1e38a2c1160fd280b144476cc3f62bc43ef49db1"
+    },
+    {
+      "name": "ffprobe.exe",
+      "sha256": "c75d3ea9d6ab334ee2e90f15232af80aeac24d8a3185cd6ba19680acb8f43732"
+    },
+    {
+      "name": "mediago.exe",
+      "sha256": "313ae58fb0acba98019333a00337925bf0c6cd10ddc00d19fee33ce8c9d15fdd"
+    },
+    {
+      "name": "N_m3u8DL-RE.exe",
+      "sha256": "e5c93a8de0c58c50922c17a8a3babd7d2193fb43b1a7facd0b18de9274ef8061"
+    },
+    {
+      "name": "yt-dlp.exe",
+      "sha256": "33121d192d706e62f684a06f80918e3f3a8ba52ac3a65213b6951c39c7d9f555"
+    }
+  ],
+  "sourceAsset": "NyaCatch-0.25.0-third-party-sources.zip"
+}

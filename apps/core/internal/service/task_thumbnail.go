@@ -29,6 +29,8 @@ type TaskThumbnailService struct {
 	resolve             func(context.Context, string) (*MediaPreview, error)
 	slots               chan struct{}
 	failures            sync.Map
+	cacheMu             sync.Mutex
+	active              map[string]int
 }
 
 func NewTaskThumbnailService(tasks *DownloadTaskService, binaryDir, cacheDir string, config interface{ Get(string) any }) *TaskThumbnailService {
@@ -67,6 +69,24 @@ func (s *TaskThumbnailService) Get(parent context.Context, id int64) ([]byte, st
 	}
 	// Include the source identity so editing an old task cannot reuse another cover.
 	cache := filepath.Join(s.cacheDir, fmt.Sprintf("%d-%x.image", id, sha256.Sum256([]byte(task.URL))))
+	s.cacheMu.Lock()
+	if err := s.safeCacheRoot(); err != nil {
+		s.cacheMu.Unlock()
+		return nil, "", err
+	}
+	if s.active == nil {
+		s.active = map[string]int{}
+	}
+	s.active[cache]++
+	s.cacheMu.Unlock()
+	defer func() {
+		s.cacheMu.Lock()
+		s.active[cache]--
+		if s.active[cache] == 0 {
+			delete(s.active, cache)
+		}
+		s.cacheMu.Unlock()
+	}()
 	negativeKey := cache + ":" + task.Status
 	if data, mime, err := readThumbnail(cache); err == nil {
 		return data, mime, nil

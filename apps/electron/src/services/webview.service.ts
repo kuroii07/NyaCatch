@@ -396,9 +396,29 @@ export default class WebviewService {
     this.view = null;
   }
 
+  private websiteSessions() {
+    return [PERSIST_WEBVIEW, PRIVACY_WEBVIEW].map((partition) =>
+      session.fromPartition(partition),
+    );
+  }
+
+  async cacheInfo() {
+    const sizes = await Promise.all(
+      this.websiteSessions().map((profile) => profile.getCacheSize()),
+    );
+    return { bytes: sizes.reduce((sum, size) => sum + size, 0) };
+  }
+
   async clearCache() {
-    await this.session.clearCache();
-    await this.session.clearStorageData();
+    await Promise.all(
+      this.websiteSessions().map((profile) => profile.clearCache()),
+    );
+  }
+
+  async clearWebsiteData() {
+    await Promise.all(
+      this.websiteSessions().map((profile) => profile.clearStorageData()),
+    );
   }
 
   async restoreConfig(): Promise<void> {

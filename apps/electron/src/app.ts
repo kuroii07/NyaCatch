@@ -70,7 +70,6 @@ export default class ElectronApp {
   }
 
   private async vendorInit() {
-    this.updater.init();
     this.devTools.init();
   }
 
@@ -184,6 +183,7 @@ export default class ElectronApp {
     );
 
     await this.serviceInit();
+    await this.updater.init();
   }
 
   initTray() {

@@ -10,6 +10,7 @@ import {
   type LocalFileCheck,
 } from "@mediago/shared-common";
 import { contextBridge, ipcRenderer, webUtils } from "electron";
+import { trustedApplicationFrame } from "./frame-policy";
 
 const apiKey = "electron";
 
@@ -45,6 +46,12 @@ const electronApi: PlatformApi = {
     },
     setUserAgent(isMobile: boolean): Promise<void> {
       return ipcRenderer.invoke(IPC.browser.setUserAgent, isMobile);
+    },
+    cacheInfo(): Promise<{ bytes: number }> {
+      return ipcRenderer.invoke(IPC.browser.cacheInfo);
+    },
+    clearWebsiteData(): Promise<void> {
+      return ipcRenderer.invoke(IPC.browser.clearWebsiteData);
     },
     clearCache(): Promise<void> {
       return ipcRenderer.invoke(IPC.browser.clearCache);
@@ -108,6 +115,21 @@ const electronApi: PlatformApi = {
     releaseMediaPreview(id: string) {
       return ipcRenderer.invoke(IPC.shell.releaseMediaPreview, id);
     },
+    startCompatiblePreview(target: string) {
+      return ipcRenderer.invoke(IPC.shell.startCompatiblePreview, target);
+    },
+    compatiblePreviewStatus(id: string) {
+      return ipcRenderer.invoke(IPC.shell.compatiblePreviewStatus, id);
+    },
+    releaseCompatiblePreview(id: string) {
+      return ipcRenderer.invoke(IPC.shell.releaseCompatiblePreview, id);
+    },
+    mediaPreviewCacheInfo() {
+      return ipcRenderer.invoke(IPC.shell.mediaPreviewCacheInfo);
+    },
+    clearMediaPreviewCache() {
+      return ipcRenderer.invoke(IPC.shell.clearMediaPreviewCache);
+    },
     checkFiles(
       targets: string[],
       inspectVideo = false,
@@ -127,6 +149,9 @@ const electronApi: PlatformApi = {
     },
   },
   update: {
+    state() {
+      return ipcRenderer.invoke(IPC.update.state);
+    },
     check(): Promise<void> {
       return ipcRenderer.invoke(IPC.update.check);
     },
@@ -145,7 +170,23 @@ const electronApi: PlatformApi = {
   },
 };
 
-contextBridge.exposeInMainWorld(apiKey, electronApi);
+const trustedFrame = trustedApplicationFrame(
+  window.location,
+  window === window.top,
+  process.env.NODE_ENV !== "production",
+);
+// Source websites need only the injected media helper, never native file/app/update APIs.
+contextBridge.exposeInMainWorld(
+  apiKey,
+  trustedFrame
+    ? electronApi
+    : {
+        browser: {
+          showDownloadDialog: electronApi.browser.showDownloadDialog,
+          pluginReady: electronApi.browser.pluginReady,
+        },
+      },
+);
 
 export { electronApi };
 export type { PlatformApi };

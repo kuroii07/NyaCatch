@@ -23,33 +23,36 @@ const projectRoot = path.resolve(__dirname, "../../..");
 const appRoot = path.resolve(__dirname, "..");
 const arch = process.arch === "arm64" ? "arm64" : "x64";
 // A single temporary build directory; product history belongs in reports/rollback.
-const betaOutputDir = "./release-beta";
+const betaOutputDir = isBeta ? "./release-beta" : "./release";
 
 dotenvFlow.config({
   path: projectRoot,
 });
 
 const pkg = JSON.parse(await fs.readFile("./app/package.json", "utf-8"));
-const platformCatalog = isBeta
-  ? JSON.parse(
-      await fs.readFile(
-        path.join(
-          projectRoot,
-          "apps/ui/src/pages/platforms-page/engine-catalog.generated.json",
-        ),
-        "utf8",
-      ),
-    )
-  : null;
+const platformCatalog = JSON.parse(
+  await fs.readFile(
+    path.join(
+      projectRoot,
+      "apps/ui/src/pages/platforms-page/engine-catalog.generated.json",
+    ),
+    "utf8",
+  ),
+);
 
 function getReleaseConfig(): Configuration {
   return {
     asar: true,
     asarUnpack: [],
     productName: APP_PRODUCT_NAME,
-    buildVersion: isBeta ? APP_BUILD_VERSION : pkg.version,
-    ...(isBeta ? { extraMetadata: { version: APP_BUILD_VERSION } } : {}),
-    appId: process.env.APP_ID,
+    buildVersion: APP_BUILD_VERSION,
+    extraMetadata: {
+      name: "nyacatch",
+      version: APP_BUILD_VERSION,
+      author: "kuroii07",
+      homepage: "https://github.com/kuroii07/NyaCatch",
+    },
+    appId: "io.github.kuroii07.nyacatch",
     copyright: process.env.APP_COPYRIGHT,
     // Register the custom scheme at install/first-run time.
     // • macOS: electron-builder merges this into CFBundleURLTypes.
@@ -57,22 +60,14 @@ function getReleaseConfig(): Configuration {
     //   handles registry entries on first launch — electron-builder
     //   doesn't write these directly.
     // • Linux: runtime handler writes the .desktop file at first launch.
-    protocols: isBeta
-      ? []
-      : [
-          {
-            name: "MediaGo URL Scheme",
-            schemes: [process.env.APP_NAME as string],
-          },
-        ],
-    artifactName:
-      "${productName}-setup-${platform}-${arch}-${buildVersion}.${ext}",
-    npmRebuild: !isBeta,
+    protocols: [],
+    artifactName: "${productName}-${buildVersion}-windows-${arch}-setup.${ext}",
+    npmRebuild: false,
     directories: {
       output: isBeta ? betaOutputDir : "./release",
     },
     files: [
-      ...(isBeta ? ["./runtime_modules/**"] : []),
+      "./runtime_modules/**",
       {
         from: "./build/main",
         to: "./main",
@@ -92,9 +87,8 @@ function getReleaseConfig(): Configuration {
       "**/node_modules/@ghostery/adblocker-electron-preload/**",
     ],
     extraResources: [
-      ...(isBeta
-        ? [{ from: "./app/build/nyacatch-beta.json", to: "nyacatch-beta.json" }]
-        : []),
+      { from: "./app/build/nyacatch-beta.json", to: "nyacatch-beta.json" },
+      { from: path.join(projectRoot, "licenses"), to: "licenses" },
       {
         from: "./app/build/plugin",
         to: "plugin",
@@ -120,15 +114,11 @@ function getReleaseConfig(): Configuration {
     win: {
       // Branding is applied below with the native rcedit binary for a local
       // beta, avoiding winCodeSign's unrelated macOS symlink extraction.
-      signAndEditExecutable: !isBeta,
-      icon: "../assets/icon.ico",
+      signAndEditExecutable: false,
+      icon: "./assets/icon.ico",
       target: [
         {
           target: "nsis",
-          arch,
-        },
-        {
-          target: "portable",
           arch,
         },
       ],
@@ -186,8 +176,10 @@ function getReleaseConfig(): Configuration {
       oneClick: false,
       allowElevation: true,
       allowToChangeInstallationDirectory: true,
-      createDesktopShortcut: true,
+      createDesktopShortcut: false,
       createStartMenuShortcut: true,
+      runAfterFinish: false,
+      deleteAppDataOnUninstall: false,
     },
   };
 }
@@ -230,7 +222,7 @@ for (const task of electronTask) {
   );
 }
 
-if (isBeta) {
+{
   // Main-process code is bundled, but these preloads are resolved at runtime.
   for (const name of [
     "@mediago/electron-preload",
@@ -278,7 +270,7 @@ try {
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 }
-if (isBeta) {
+{
   const versions = JSON.parse(
     await fs.readFile(
       path.resolve(projectRoot, "scripts/deps-versions.json"),
@@ -295,7 +287,7 @@ if (isBeta) {
     path.join(appRoot, "app/build/nyacatch-beta.json"),
     JSON.stringify({
       product: APP_PRODUCT_NAME,
-      channel: "local-beta",
+      channel: APP_BUILD_VERSION.includes("-") ? "local-beta" : "stable",
       version: APP_BUILD_VERSION,
       upstreamVersion: pkg.version,
       bundledTools,
@@ -342,28 +334,32 @@ if (platformCatalog) {
 }
 
 const config = getReleaseConfig();
-if (isBeta) {
+{
   config.files = [
     ...(config.files || []).filter((entry) => entry !== "./runtime_modules/**"),
     { from: "runtime_modules/node_modules", to: "node_modules" },
   ];
 }
-if (!isBeta && process.env.GH_TOKEN) {
-  config.publish = {
-    provider: "github",
-    repo: "mediago",
-    owner: "caorushizi",
-    releaseType: "draft",
-  };
-}
+config.publish = {
+  provider: "github",
+  owner: "kuroii07",
+  repo: "NyaCatch",
+  releaseType: "draft",
+};
+config.afterPack = async (context) => {
+  if (isWindows)
+    await brandWindowsExecutable(
+      path.join(context.appOutDir, `${APP_PRODUCT_NAME}.exe`),
+    );
+};
 await build({
   config,
   dir: isDir,
-  ...(isBeta ? { publish: "never" as const } : {}),
+  publish: "never",
   // targets: Platform.WINDOWS.createTarget(["nsis", "portable"], Arch.x64),
 });
 
-if (isBeta && isWindows) {
+async function brandWindowsExecutable(executable: string) {
   let editor = process.env.NYACATCH_RCEDIT;
   if (!editor) {
     const cache = path.join(
@@ -386,12 +382,6 @@ if (isBeta && isWindows) {
     throw new Error(
       "Set NYACATCH_RCEDIT to a native rcedit executable for beta PE branding",
     );
-  const executable = path.join(
-    appRoot,
-    betaOutputDir,
-    "win-unpacked",
-    `${APP_PRODUCT_NAME}.exe`,
-  );
   // The cached rcedit can reject the resource layout written by builder's
   // ASAR-integrity step. A native no-op commit normalizes it while retaining
   // every resource. This is applied only to the newly built, unsigned beta.

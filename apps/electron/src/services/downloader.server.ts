@@ -76,6 +76,7 @@ export class DownloaderServer extends EventEmitter {
       internal: true,
       extraEnv: bridgeEnv,
       extraArgs: [
+        "-desktop-origins=true",
         `-log-level=info`,
         `-log-dir=${opts.logDir}`,
         `-schema-path=${core.coreConfig}`,
