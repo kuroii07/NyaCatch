@@ -1,0 +1,165 @@
+{
+  "fetchedAt": "2026-11-15T14:24:02.167Z",
+  "icons": [
+    {
+      "id": "bilibili",
+      "file": "bilibili.ico",
+      "source": "https://www.bilibili.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "2681561eb24e7435fea1acf26f3af95e4efc9f7d451587b58bef62f030f337e9"
+    },
+    {
+      "id": "xiaohongshu",
+      "file": "xiaohongshu.ico",
+      "source": "https://www.xiaohongshu.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "33b25a8e2b0a67d2fc58eb6739a608211af9e62b3fdd935e7ce7e1ce12963372"
+    },
+    {
+      "id": "zhihu",
+      "file": "zhihu.ico",
+      "source": "https://static.zhihu.com/heifetz/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "ca501e1d6c35f64b94d78bbabad986fe888d6aab08702a0083ba88076ad60f37"
+    },
+    {
+      "id": "douyin",
+      "file": "douyin.ico",
+      "source": "https://www.douyin.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "e67348e3ab54fa207e1ce4be78e8399d1b73a794d819a17d8656ea2b17a1109d"
+    },
+    {
+      "id": "weibo",
+      "file": "weibo.ico",
+      "source": "https://weibo.com/favicon.ico",
+      "bytes": 10134,
+      "extension": "ico",
+      "sha256": "b86c00f90f8b742d1fb477034fb1916832857b8ac8a77f34a9c2904f3051194a"
+    },
+    {
+      "id": "qqvideo",
+      "file": "qqvideo.ico",
+      "source": "https://v.qq.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "2f96726424fa3c378105289868902ebd091e5597c59e65ae36d09ef6a04aabd1"
+    },
+    {
+      "id": "kuaishou",
+      "file": "kuaishou.ico",
+      "source": "https://www.kuaishou.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "b41bf5fb2d4ac584399902bb5b342f4b41e48c875053d962d3fe3d8a95abb4b3"
+    },
+    {
+      "id": "netease",
+      "file": "netease.ico",
+      "source": "https://s1.music.126.net/style/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "90d4c1e2dcc6f2728a2627a6a625879e8305821bf1bb297a1041e6ccca0d13b1"
+    },
+    {
+      "id": "iqiyi",
+      "file": "iqiyi.ico",
+      "source": "https://www.iqiyi.com/favicon.ico",
+      "bytes": 32038,
+      "extension": "ico",
+      "sha256": "4134a7da324ec4060a2b11843d3bd8d5545b266a27ff72b0b82bddbc3e6a8b39"
+    },
+    {
+      "id": "youku",
+      "file": "youku.ico",
+      "source": "https://www.youku.com/favicon.ico",
+      "bytes": 9662,
+      "extension": "ico",
+      "sha256": "4c42f39c6e0254900256e70bb876eceacd0f5f2434ec6502d4e9d81de686a3da"
+    },
+    {
+      "id": "youtube",
+      "file": "youtube.png",
+      "source": "https://www.youtube.com/s/desktop/bb2198ae/img/favicon_144x144.png",
+      "bytes": 5020,
+      "extension": "png",
+      "sha256": "e39dc3d8c2f82ad2375132a8efcf521c232d5e2cf08abeb9bebe1ad94afb2157"
+    },
+    {
+      "id": "x",
+      "file": "x.png",
+      "source": "https://abs.twimg.com/favicons/twitter.3.ico",
+      "bytes": 549,
+      "extension": "png",
+      "sha256": "cc4939af5d16855f2bea8322dbf33461ebc6bfd092fa3e2291d87d3d83ebd8ed"
+    },
+    {
+      "id": "twitch",
+      "file": "twitch.ico",
+      "source": "https://www.twitch.tv/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "451309e9f1bf7cf9bff43b0de54df290a4d74149a43f3ad483dde8f865e63a51"
+    },
+    {
+      "id": "tiktok",
+      "file": "tiktok.png",
+      "source": "https://www.tiktok.com/favicon.ico",
+      "bytes": 842,
+      "extension": "png",
+      "sha256": "d0d48654b83875f95e62ef0744e31de50aa9913c031eeee4a20f407485be3595"
+    },
+    {
+      "id": "pixiv",
+      "file": "pixiv.ico",
+      "source": "https://www.pixiv.net/favicon.ico",
+      "bytes": 9662,
+      "extension": "ico",
+      "sha256": "2d31fd6da3e57e7c1cbf8955ffc71df0330488cdb0d8255e7a17720b6f338b1a"
+    },
+    {
+      "id": "reddit",
+      "file": "reddit.png",
+      "source": "https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png",
+      "bytes": 1662,
+      "extension": "png",
+      "sha256": "58acb31ef9f7363f1afefc083bff69e8fe11d77115573b606a0fa05b2868c7d2"
+    },
+    {
+      "id": "vimeo",
+      "file": "vimeo.ico",
+      "source": "https://f.vimeocdn.com/images_v6/favicon.ico",
+      "bytes": 15086,
+      "extension": "ico",
+      "sha256": "3ffa2884919306bbd7c3c11da9003d384704df7714a40923a4d39c0e0213ec36"
+    },
+    {
+      "id": "pinterest",
+      "file": "pinterest.png",
+      "source": "https://s.pinimg.com/webapp/favicon-54a5b2af.png",
+      "bytes": 743,
+      "extension": "png",
+      "sha256": "b9945d0fac3a4173d811c657f192b77fba30af17fa108e3ae7312f8fe23db1d9"
+    },
+    {
+      "id": "soundcloud",
+      "file": "soundcloud.ico",
+      "source": "https://soundcloud.com/favicon.ico",
+      "bytes": 4286,
+      "extension": "ico",
+      "sha256": "adb156306b97757dfce12cf06006698210471e12c49aaddb414ed765cc32ec1f"
+    },
+    {
+      "id": "instagram",
+      "file": "instagram.png",
+      "source": "https://www.instagram.com/static/images/ico/favicon-192.png/68d99ba29cc8.png",
+      "bytes": 34715,
+      "extension": "png",
+      "sha256": "8878662ce6afc4a995bd80c67652a72642c9564b40cfc5ac94a802d7e0f8b6b1"
+    }
+  ]
+}

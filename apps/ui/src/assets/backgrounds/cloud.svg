@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <linearGradient id="cloud-sky" x1="800" y1="0" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8D5E5"/>
+      <stop offset="0.64" stop-color="#DDEBF0"/>
+      <stop offset="1" stop-color="#F1F2EB"/>
+    </linearGradient>
+    <radialGradient id="cloud-light" cx="0" cy="0" r="1" gradientTransform="translate(1110 230) scale(430 360)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFBEA" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FFFBEA" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cloud-front" x1="800" y1="710" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCFBF4"/>
+      <stop offset="1" stop-color="#E6EFF0"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#cloud-sky)" d="M0 0h1600v1000H0z"/>
+  <path fill="url(#cloud-light)" d="M0 0h1600v1000H0z"/>
+  <circle cx="1110" cy="230" r="57" fill="#FBF9EA" opacity="0.75"/>
+  <path d="M142 255C184 254 211 238 253 241C292 243 311 260 366 259" stroke="#EDF4F3" stroke-width="10" stroke-linecap="round" opacity="0.45"/>
+  <path d="M1241 402C1286 402 1311 386 1357 389C1389 391 1415 403 1460 401" stroke="#F4F7F1" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+  <path d="M0 614C67 559 144 554 206 588C232 530 310 499 373 524C420 541 443 572 459 603C535 560 611 575 659 622C756 570 844 581 917 617C966 547 1070 537 1130 589C1197 534 1298 554 1331 617C1428 557 1524 565 1600 616V1000H0Z" fill="#E5EFF0"/>
+  <path d="M0 732C85 700 134 715 180 732C204 664 291 625 357 652C400 668 426 698 439 728C520 684 596 709 631 758C697 699 800 701 862 746C885 678 963 637 1032 656C1081 669 1118 705 1136 750C1218 699 1305 723 1353 765C1428 697 1535 704 1600 745V1000H0Z" fill="#F2F5F1"/>
+  <path d="M0 891C85 791 223 778 317 850C373 809 450 818 494 862C541 783 663 769 732 830C798 784 897 807 937 875C1037 823 1155 840 1210 900C1236 820 1338 777 1417 816C1492 788 1569 816 1600 845V1000H0Z" fill="url(#cloud-front)"/>
+  <path d="M227 915C301 889 380 894 441 911M1045 948C1100 930 1151 933 1192 949" stroke="#CADDE2" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+</svg>

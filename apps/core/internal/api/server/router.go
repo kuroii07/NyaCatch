@@ -1,0 +1,96 @@
+package server
+
+func (s *Server) registerRoutes() {
+	s.engine.GET("/healthy", s.healthHandler.Check)
+	s.registerSwaggerRoute()
+
+	// Video player routes (when video-root is configured)
+	if s.videoHandler != nil {
+		v1 := s.engine.Group("/api/v1")
+		s.videoHandler.RegisterRoutes(v1)
+		s.engine.GET("/videos/:id", s.videoHandler.ServeVideoByID)
+	}
+
+	api := s.engine.Group("/api")
+	{
+		api.POST("/tasks", s.taskHandler.Create)
+		api.GET("/tasks/:id", s.taskHandler.Get)
+		api.GET("/tasks", s.taskHandler.List)
+		api.POST("/tasks/:id/stop", s.taskHandler.Stop)
+		api.GET("/tasks/:id/logs", s.taskHandler.Logs)
+
+		api.GET("/config", s.configHandler.GetStore)
+		api.POST("/config", s.configHandler.Update)
+		api.GET("/config/:key", s.configHandler.GetKey)
+		api.PUT("/config/:key", s.configHandler.SetKey)
+
+		api.GET("/events", s.eventHandler.Stream)
+
+		// Auth
+		auth := api.Group("/auth")
+		{
+			auth.POST("/setup", s.authHandler.Setup)
+			auth.POST("/signin", s.authHandler.Signin)
+			auth.GET("/status", s.authHandler.Status)
+		}
+
+		// Utility
+		api.GET("/url/title", s.utilHandler.GetPageTitle)
+		api.GET("/env", s.utilHandler.GetEnvPaths)
+		api.POST("/media/preview", s.mediaHandler.Preview)
+		api.POST("/media/collection", s.mediaHandler.Collection)
+		api.POST("/media/playback", s.mediaHandler.CreatePlayback)
+		api.DELETE("/media/playback/:session", s.mediaHandler.RemovePlayback)
+	}
+
+	// Database persistence routes (only registered when database is available)
+	if s.downloadHandler != nil {
+		downloads := api.Group("/downloads")
+		{
+			downloads.POST("", s.downloadHandler.Create)
+			downloads.POST("/duplicates", s.downloadHandler.Duplicates)
+			downloads.GET("", s.downloadHandler.List)
+			downloads.GET("/folders", s.downloadHandler.Folders)
+			downloads.GET("/export", s.downloadHandler.Export)
+			downloads.GET("/active", s.downloadHandler.Active)
+			downloads.PUT("/status", s.downloadHandler.UpdateStatus)
+			downloads.GET("/:id", s.downloadHandler.Get)
+			if s.thumbnailHandler != nil {
+				downloads.GET("/:id/thumbnail", s.thumbnailHandler.Get)
+			}
+			downloads.PUT("/:id", s.downloadHandler.Edit)
+			downloads.DELETE("/:id", s.downloadHandler.Delete)
+			downloads.POST("/:id/start", s.downloadHandler.Start)
+			downloads.POST("/:id/stop", s.downloadHandler.Stop)
+			downloads.PUT("/:id/live", s.downloadHandler.UpdateIsLive)
+			downloads.GET("/:id/logs", s.downloadHandler.Logs)
+		}
+	}
+
+	if s.favoriteHandler != nil {
+		favorites := api.Group("/favorites")
+		{
+			favorites.GET("", s.favoriteHandler.List)
+			favorites.POST("", s.favoriteHandler.Create)
+			favorites.DELETE("/:id", s.favoriteHandler.Delete)
+			favorites.GET("/export", s.favoriteHandler.Export)
+			favorites.POST("/import", s.favoriteHandler.Import)
+		}
+	}
+
+	if s.conversionHandler != nil {
+		conversions := api.Group("/conversions")
+		{
+			conversions.GET("", s.conversionHandler.List)
+			conversions.POST("", s.conversionHandler.Create)
+			conversions.GET("/encoders", s.conversionHandler.Encoders)
+			conversions.POST("/mux-inspect", s.conversionHandler.MuxInspect)
+			conversions.POST("/subtitle-inspect", s.conversionHandler.SubtitleInspect)
+			conversions.POST("/subtitle-preview", s.conversionHandler.SubtitlePreview)
+			conversions.DELETE("/:id", s.conversionHandler.Delete)
+			conversions.GET("/:id", s.conversionHandler.Get)
+			conversions.POST("/:id/start", s.conversionHandler.Start)
+			conversions.POST("/:id/stop", s.conversionHandler.Stop)
+		}
+	}
+}

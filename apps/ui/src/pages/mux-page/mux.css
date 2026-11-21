@@ -1,0 +1,163 @@
+.mux-left {
+  overflow-y: auto;
+  gap: 10px;
+}
+.mux-left .trim-preview {
+  flex: 1 0 360px;
+  min-height: 360px;
+}
+.mux-left .merge-source-bar {
+  flex-wrap: wrap;
+}
+.mux-left .merge-source-bar > div {
+  flex-basis: 140px;
+}
+.mux-mode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mux-page .cvt-field {
+  display: block;
+  margin: 16px 0;
+}
+.mux-page .cvt-field > span {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.mux-page select,
+.mux-path input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  background: var(--wb-control);
+  color: var(--wb-ink);
+  font-size: 13px;
+}
+.mux-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mux-path input {
+  flex: 1;
+}
+.mux-path button {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+.mux-files {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+  max-height: 156px;
+  overflow: auto;
+}
+.mux-file {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  border-radius: 7px;
+  background: var(--wb-soft);
+}
+.mux-file.is-active {
+  box-shadow: inset 3px 0 var(--wb-accent);
+}
+.mux-file button {
+  border: 0;
+  background: transparent;
+  color: var(--wb-ink);
+  cursor: pointer;
+  padding: 7px 10px;
+}
+.mux-file button:first-child {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.mux-file strong,
+.mux-file small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mux-file strong {
+  font-size: 12px;
+}
+.mux-file small {
+  font-size: 11px;
+  color: var(--wb-muted);
+  margin-top: 2px;
+}
+.mux-file button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.mux-track-details {
+  border-block: 1px solid var(--wb-line);
+  padding: 10px 0;
+  margin: 12px 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.mux-track-details summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.mux-track-details ul {
+  padding-left: 18px;
+}
+.mux-track-details li {
+  margin: 6px 0;
+}
+.mux-track-details small {
+  color: var(--wb-muted);
+}
+.mux-page .cvt-actions button {
+  white-space: normal;
+}
+.mux-page .trim-hint {
+  overflow-wrap: anywhere;
+}
+.mux-audio {
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--wb-line);
+}
+.mux-subtitle {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--wb-line);
+}
+.mux-subtitle-hint {
+  display: block;
+  margin-top: 10px;
+}
+.mux-subtitle-convert {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--wb-ink);
+}
+.mux-subtitle-convert input {
+  flex: none;
+  margin-top: 3px;
+  accent-color: var(--wb-accent);
+}
+.mux-subtitle-convert span {
+  overflow-wrap: anywhere;
+}
+@media (max-height: 740px) {
+  .mux-left .trim-preview {
+    flex-basis: 300px;
+    min-height: 300px;
+  }
+}

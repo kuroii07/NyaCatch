@@ -1,0 +1,63 @@
+.audio-converter-page .cvt-drop {
+  min-height: 100px;
+  padding: 10px 15px;
+  gap: 4px;
+}
+.audio-converter-page .cvt-drop-icon,
+.audio-converter-page .cvt-drop > p {
+  display: none;
+}
+.audio-converter-page .cvt-drop h2 {
+  font-size: 13px;
+}
+.audio-source-preview {
+  flex: none;
+  min-width: 0;
+  margin-top: 12px;
+}
+.audio-source-preview > strong {
+  display: block;
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.audio-source-preview .trim-player.is-audio {
+  min-height: 0;
+  padding: 10px;
+  gap: 0;
+}
+.audio-source-preview .trim-player > svg {
+  display: none;
+}
+.audio-source-preview .trim-transport {
+  margin-top: 4px;
+}
+.audio-source-preview .trim-playhead {
+  font-size: 10px;
+}
+.audio-converter-page .cvt-file-info .cvt-error {
+  color: var(--wb-error);
+}
+.audio-converter-page .cvt-status small {
+  max-width: 120px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.audio-converter-page .cvt-left {
+  overflow: hidden;
+}
+.audio-converter-page .cvt-list {
+  flex: 1;
+}
+.audio-converter-page .cvt-field[hidden] {
+  display: none;
+}
+@media (max-height: 740px) {
+  .audio-converter-page .cvt-left {
+    overflow-y: auto;
+  }
+  .audio-converter-page .cvt-list {
+    flex: 1 0 150px;
+  }
+}

@@ -1,0 +1,134 @@
+/* Root tokens also reach portals, independent browser windows and shared controls. */
+html[data-theme] .wb-app-header {
+  background: var(--wb-header);
+}
+html[data-theme] .wb-sidebar {
+  background: var(--wb-sidebar);
+  color: var(--wb-sidebar-text);
+}
+html[data-theme] .wb-sidebar .wb-nav-item {
+  color: var(--wb-sidebar-text);
+}
+html[data-theme] .wb-sidebar .wb-nav-item:hover:not(.is-active) {
+  background: var(--wb-sidebar-hover);
+  color: var(--wb-sidebar-text);
+}
+html[data-theme] .wb-sidebar .wb-nav-item.is-active {
+  background: var(--wb-accent);
+  color: #242a36;
+}
+html[data-theme] .wb-sidebar :focus-visible {
+  outline-color: var(--wb-sidebar-text);
+}
+html[data-theme] :is(.wb-primary, .wb-solid-primary) {
+  background: var(--wb-primary);
+  border-color: var(--wb-primary);
+  color: var(--wb-primary-text);
+}
+html[data-theme] :is(.wb-primary, .wb-solid-primary):hover:not(:disabled) {
+  background: var(--wb-primary-hover);
+  border-color: var(--wb-primary-hover);
+}
+html[data-theme] :is(.wb-primary, .wb-solid-primary):active:not(:disabled) {
+  background: var(--wb-primary-active);
+  border-color: var(--wb-primary-active);
+}
+html[data-theme] :is(.wb-primary, .wb-solid-primary):disabled {
+  background: var(--wb-disabled);
+  border-color: var(--wb-line);
+  color: var(--wb-disabled-text);
+  opacity: 1;
+}
+html[data-theme] .wb-primary svg {
+  color: inherit;
+}
+html[data-theme] .media-app {
+  font-family:
+    "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI",
+    "Microsoft JhengHei UI", "Yu Gothic UI", "Malgun Gothic", sans-serif;
+}
+html[data-theme] .media-app :focus-visible {
+  outline-color: var(--wb-focus);
+}
+html[data-theme] .wb-link-entry {
+  background: var(--wb-control);
+  border-color: var(--wb-line);
+}
+html[data-theme]
+  :is(
+    .v4-field select,
+    .v4-filename,
+    .v4-directory,
+    .v4-task-toolbar > select,
+    .v4-search,
+    .v4-pagination select
+  ) {
+  background: var(--wb-control);
+  border-color: var(--wb-line);
+}
+html[data-theme] :is(.v4-action-bar, .v4-source-strip) {
+  background: var(--wb-soft);
+}
+html[data-theme] .v4-output-tabs button[aria-checked="true"] {
+  background: var(--wb-accent);
+  color: #242a36;
+  border-color: var(--wb-focus);
+}
+html[data-theme] .v4-output-tabs button:hover:not(:disabled) {
+  background: var(--wb-soft);
+  color: var(--wb-ink);
+}
+html[data-theme] .v4-output-tabs button:disabled {
+  background: var(--wb-disabled);
+  color: var(--wb-disabled-text);
+  border-color: var(--wb-line);
+}
+html[data-theme] .v4-task-row input[type="checkbox"] {
+  accent-color: var(--wb-focus);
+}
+html[data-theme] :is(.wb-legacy-page, .wb-legacy-page .bg-white) {
+  background: var(--wb-surface);
+  color: var(--wb-ink);
+}
+html[data-theme] .wb-legacy-page {
+  background: var(--wb-canvas);
+}
+html[data-theme] .ant-modal-content::before,
+html[data-theme] .ant-modal-content::after {
+  display: none;
+}
+html[data-theme] .ant-btn {
+  background-image: none;
+}
+html[data-theme] .ant-btn-primary {
+  background: var(--wb-primary);
+  border-color: var(--wb-primary);
+  color: var(--wb-primary-text);
+}
+html[data-theme] .ant-btn-primary:not(:disabled):hover {
+  background: var(--wb-primary-hover);
+  border-color: var(--wb-primary-hover);
+  color: var(--wb-primary-text);
+}
+html[data-theme] .ant-btn-primary:disabled {
+  background: var(--wb-disabled);
+  border-color: var(--wb-line);
+  color: var(--wb-disabled-text);
+}
+html[data-theme] {
+  --background: var(--wb-canvas);
+  --foreground: var(--wb-ink);
+  --card: var(--wb-surface);
+  --card-foreground: var(--wb-ink);
+  --popover: var(--wb-surface);
+  --popover-foreground: var(--wb-ink);
+  --primary: var(--wb-primary);
+  --primary-foreground: var(--wb-primary-text);
+  --secondary: var(--wb-soft);
+  --secondary-foreground: var(--wb-ink);
+  --accent: var(--wb-soft);
+  --accent-foreground: var(--wb-ink);
+  --input: var(--wb-line);
+  --border: var(--wb-line);
+  --ring: var(--wb-focus);
+}

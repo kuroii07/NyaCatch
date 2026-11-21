@@ -1,0 +1,61 @@
+export const usabilityMessages = {
+  zh: {
+    u11NeedParse: "粘贴链接或分享文本，点击“解析链接”后继续。",
+    u11ChooseOutput: "请选择来源提供的保存内容和画质。",
+    u11NeedFolder: "请先选择保存目录。",
+    u11NeedSelection: "请至少勾选一个资源。",
+    u11AlreadyAdded: "已创建任务，可更换链接或保存选项后继续。",
+    u11ChooseFiles: "选择或拖入文件后设置转换选项。",
+    u11CopyLogs: "复制日志",
+    u11CopiedLogs: "日志已复制",
+    u11CopyFailed: "复制失败，请选中日志后手动复制。",
+  },
+  "zh-TW": {
+    u11NeedParse: "貼上連結或分享文字，點選「解析連結」後繼續。",
+    u11ChooseOutput: "請選擇來源提供的儲存內容與畫質。",
+    u11NeedFolder: "請先選擇儲存目錄。",
+    u11NeedSelection: "請至少勾選一個資源。",
+    u11AlreadyAdded: "已建立工作，可更換連結或儲存選項後繼續。",
+    u11ChooseFiles: "選擇或拖入檔案後設定轉換選項。",
+    u11CopyLogs: "複製記錄",
+    u11CopiedLogs: "已複製記錄",
+    u11CopyFailed: "複製失敗，請選取記錄後手動複製。",
+  },
+  en: {
+    u11NeedParse: "Paste a link or share text, then select Parse link.",
+    u11ChooseOutput: "Choose an available output and quality.",
+    u11NeedFolder: "Choose a save folder first.",
+    u11NeedSelection: "Select at least one item.",
+    u11AlreadyAdded: "Task added. Change the link or save options to continue.",
+    u11ChooseFiles: "Choose or drop files, then set the conversion options.",
+    u11CopyLogs: "Copy log",
+    u11CopiedLogs: "Log copied",
+    u11CopyFailed: "Copy failed. Select the log and copy it manually.",
+  },
+  ja: {
+    u11NeedParse: "リンクや共有テキストを貼り付け、リンクを解析してください。",
+    u11ChooseOutput: "利用可能な保存形式と画質を選択してください。",
+    u11NeedFolder: "先に保存先フォルダーを選択してください。",
+    u11NeedSelection: "少なくとも1つの項目を選択してください。",
+    u11AlreadyAdded:
+      "タスクを追加しました。リンクや保存設定を変更して続けられます。",
+    u11ChooseFiles:
+      "ファイルを選択またはドロップし、変換設定を指定してください。",
+    u11CopyLogs: "ログをコピー",
+    u11CopiedLogs: "ログをコピーしました",
+    u11CopyFailed:
+      "コピーできませんでした。ログを選択して手動でコピーしてください。",
+  },
+  ko: {
+    u11NeedParse: "링크나 공유 텍스트를 붙여 넣고 링크를 분석하세요.",
+    u11ChooseOutput: "사용 가능한 저장 형식과 화질을 선택하세요.",
+    u11NeedFolder: "먼저 저장 폴더를 선택하세요.",
+    u11NeedSelection: "항목을 하나 이상 선택하세요.",
+    u11AlreadyAdded:
+      "작업이 추가되었습니다. 링크나 저장 옵션을 변경해 계속하세요.",
+    u11ChooseFiles: "파일을 선택하거나 끌어 놓은 후 변환 옵션을 설정하세요.",
+    u11CopyLogs: "로그 복사",
+    u11CopiedLogs: "로그를 복사했습니다",
+    u11CopyFailed: "복사하지 못했습니다. 로그를 선택해 직접 복사하세요.",
+  },
+};

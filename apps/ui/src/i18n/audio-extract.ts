@@ -1,0 +1,117 @@
+type Language = "zh" | "zh-TW" | "en" | "ja" | "ko";
+const entries = {
+  axReady: [
+    "检查音轨和保存位置后开始提取",
+    "檢查音軌與儲存位置後開始擷取",
+    "Review audio and save location before extracting",
+    "音声と保存先を確認して抽出します",
+    "오디오와 저장 위치를 확인 후 추출하세요",
+  ],
+  axStart: ["开始提取", "開始擷取", "Extract audio", "抽出を開始", "추출 시작"],
+  axTitle: [
+    "音频提取 / 转换",
+    "音訊擷取 / 轉換",
+    "Extract / convert audio",
+    "音声抽出 / 変換",
+    "오디오 추출 / 변환",
+  ],
+  axOriginal: [
+    "原音轨（自动格式）",
+    "原音軌（自動格式）",
+    "Original track (auto)",
+    "元の音声（自動形式）",
+    "원본 트랙 (자동 형식)",
+  ],
+  axCopyHint: [
+    "直接导出第一条音轨，不重新编码；自动选择兼容格式，保留原编码、采样率和声道。",
+    "直接輸出第一條音軌，不重新編碼；自動選擇相容格式，保留編碼、取樣率及聲道。",
+    "Copies the first audio track without re-encoding. Keeps its codec, sample rate and channels.",
+    "最初の音声を再エンコードせず抽出し、形式・サンプルレート・チャンネルを保持します。",
+    "첫 오디오 트랙을 재인코딩 없이 추출합니다. 코덱, 샘플레이트, 채널을 유지합니다.",
+  ],
+  axNoAudio: [
+    "没有可用音轨或无法读取音频信息",
+    "沒有可用音軌或無法讀取音訊資訊",
+    "No readable audio track",
+    "読み取れる音声がありません",
+    "읽을 수 있는 오디오 트랙 없음",
+  ],
+  axUnsupported: [
+    "此编码不支持直接提取，请选择转换格式",
+    "此編碼不支援直接擷取，請選擇轉換格式",
+    "Choose a conversion format for this codec",
+    "このコーデックは変換形式を選んでください",
+    "이 코덱은 변환 형식을 선택하세요",
+  ],
+  axCheck: [
+    "请检查列表中的音轨提示后再提交",
+    "請檢查清單中的音軌提示後再提交",
+    "Check the audio warnings before submitting",
+    "一覧の音声情報を確認してください",
+    "제출 전에 오디오 경고를 확인하세요",
+  ],
+  axPreview: [
+    "试听源文件",
+    "試聽來源檔案",
+    "Preview source audio",
+    "元ファイルを試聴",
+    "원본 오디오 미리 듣기",
+  ],
+  axPreviewFailed: [
+    "此编码无法直接试听，可以继续提取或转换。",
+    "此編碼無法直接試聽，可繼續擷取或轉換。",
+    "Preview is unavailable. You can still extract or convert.",
+    "試聴できませんが、抽出・変換は可能です。",
+    "미리 들을 수 없어도 추출 또는 변환할 수 있습니다.",
+  ],
+  axSend: [
+    "提取音频",
+    "擷取音訊",
+    "Extract audio",
+    "音声を抽出",
+    "오디오 추출",
+  ],
+  axSent: [
+    "已带入音频提取页，确认后再导出。",
+    "已帶入音訊擷取頁，確認後再輸出。",
+    "Added to audio extraction. Review before exporting.",
+    "音声抽出に追加しました。確認してから出力してください。",
+    "오디오 추출에 추가했습니다. 확인 후 내보내세요.",
+  ],
+  axChanged: [
+    "音频草稿已发生变化，请重试。",
+    "音訊草稿已變更，請重試。",
+    "The audio draft changed. Try again.",
+    "下書きが変更されました。再試行してください。",
+    "오디오 초안이 변경되었습니다. 다시 시도하세요.",
+  ],
+  axLimit: [
+    "音频提取每批最多20个不同文件。",
+    "音訊擷取每批最多20個不同檔案。",
+    "Use up to 20 different files per batch.",
+    "一度に最大20ファイルです。",
+    "한 번에 최대 20개 파일을 사용하세요.",
+  ],
+  axDrop: [
+    "拖入视频或音频，提取原音轨或转换格式",
+    "拖入影片或音訊，擷取原音軌或轉換格式",
+    "Drop video or audio to extract or convert",
+    "動画・音声をドロップして抽出・変換",
+    "동영상 또는 오디오를 놓아 추출 / 변환",
+  ],
+  axSource: [
+    "预计输出 .{{extension}}",
+    "預計輸出 .{{extension}}",
+    "Output .{{extension}}",
+    "出力 .{{extension}}",
+    "출력 .{{extension}}",
+  ],
+} satisfies Record<string, [string, string, string, string, string]>;
+export const audioExtractMessages = Object.fromEntries(
+  (["zh", "zh-TW", "en", "ja", "ko"] as const).map((language, index) => [
+    language,
+    Object.fromEntries(
+      Object.entries(entries).map(([key, values]) => [key, values[index]]),
+    ),
+  ]),
+) as Record<Language, Record<keyof typeof entries, string>>;

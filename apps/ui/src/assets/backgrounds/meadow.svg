@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <linearGradient id="meadow-sky" x1="800" y1="0" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4E9D6"/>
+      <stop offset="0.58" stop-color="#FBF4E5"/>
+      <stop offset="1" stop-color="#E5E9CE"/>
+    </linearGradient>
+    <radialGradient id="meadow-light" cx="0" cy="0" r="1" gradientTransform="translate(1190 290) scale(420)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFCED" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFFCED" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#meadow-sky)" d="M0 0h1600v1000H0z"/>
+  <path fill="url(#meadow-light)" d="M0 0h1600v1000H0z"/>
+  <circle cx="1190" cy="290" r="76" fill="#FFFAE8"/>
+  <path d="M0 569C189 510 336 560 506 571C722 585 800 503 1000 525C1231 550 1402 475 1600 505V1000H0Z" fill="#E2E4CF"/>
+  <path d="M0 647C212 616 350 691 557 663C782 634 937 544 1145 580C1349 615 1454 642 1600 593V1000H0Z" fill="#D1D9BA"/>
+  <path d="M0 718C209 754 338 715 515 718C737 722 900 813 1105 749C1309 685 1419 687 1600 708V1000H0Z" fill="#BECBA8"/>
+  <path d="M0 852C197 766 380 782 572 839C785 902 925 884 1128 843C1338 801 1469 815 1600 865V1000H0Z" fill="#A5B792"/>
+  <path d="M1091 665C1032 720 933 739 845 769C736 806 672 856 654 1000H756C741 893 793 835 886 791C978 748 1055 718 1091 665Z" fill="#EEE7CB" opacity="0.66"/>
+  <g stroke="#718E71" stroke-width="3" stroke-linecap="round" opacity="0.3">
+    <path d="M122 919L115 884M119 903L103 891M119 901L132 881"/>
+    <path d="M1478 955L1483 918M1481 939L1466 922M1481 935L1497 918"/>
+  </g>
+</svg>

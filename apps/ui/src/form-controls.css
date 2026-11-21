@@ -1,0 +1,52 @@
+/* A compound field owns its focus boundary; its editable child never draws one. */
+html[data-theme]
+  :is(input, textarea, select):not(
+    :where([type="checkbox"], [type="radio"], [type="range"], [type="file"])
+  ):focus {
+  outline: none;
+}
+
+html[data-theme]
+  :is(input, textarea, select):not(
+    :where(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="file"],
+      .ant-input,
+      .ant-input-number-input,
+      .ant-select-input,
+      .ant-select-selection-search-input
+    )
+  ):focus {
+  border-color: var(--wb-focus);
+  box-shadow: inset 0 0 0 1px var(--wb-focus);
+}
+
+html[data-theme]
+  :is(.wb-link-entry, .v4-filename, .v4-search, .p-search):focus-within {
+  border-color: var(--wb-focus);
+  box-shadow: inset 0 0 0 1px var(--wb-focus);
+}
+
+html[data-theme]
+  :is(
+    .wb-link-entry,
+    .v4-filename,
+    .v4-search,
+    .p-search,
+    .ant-input-affix-wrapper,
+    .ant-input-number,
+    .ant-input-number-affix-wrapper,
+    .ant-select
+  )
+  input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Use the component's border color so validation states keep their own color. */
+html[data-theme]
+  .ant-select-outlined.ant-select-focused:not(.ant-select-disabled) {
+  box-shadow: inset 0 0 0 1px var(--ant-select-border-color);
+}

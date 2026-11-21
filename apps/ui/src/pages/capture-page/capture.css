@@ -1,0 +1,119 @@
+.capture-modes {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--wb-soft);
+  margin-bottom: 16px;
+}
+.capture-modes button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 5px;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 6px;
+  background: transparent;
+  color: var(--wb-muted);
+  font-size: 12px;
+  cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.capture-modes button[aria-selected="true"] {
+  color: var(--wb-ink);
+  background: var(--wb-control);
+  box-shadow: 0 1px 3px var(--wb-line);
+  font-weight: 600;
+}
+.capture-modes button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.capture-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  flex: none;
+}
+.capture-time input {
+  width: 132px;
+  min-width: 0;
+  border: 1px solid var(--wb-line);
+  border-radius: 7px;
+  padding: 8px;
+  background: var(--wb-control);
+  color: var(--wb-ink);
+  font-variant-numeric: tabular-nums;
+}
+.capture-time small {
+  flex-basis: 100%;
+  color: var(--wb-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.capture-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.capture-range input {
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  padding: 10px 6px;
+  background: var(--wb-control);
+  color: var(--wb-ink);
+  font-size: 12px;
+}
+.capture-loop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--wb-ink);
+}
+.capture-settings .trim-hint {
+  margin-bottom: 12px;
+}
+.capture-settings .cvt-field {
+  display: block;
+  margin-bottom: 16px;
+}
+.capture-settings .cvt-field > span {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wb-ink);
+  margin-bottom: 9px;
+}
+.capture-settings select {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  background: var(--wb-control);
+  color: var(--wb-ink);
+  padding: 0 8px;
+  font-size: 13px;
+}
+.capture-settings .capture-range input {
+  font-size: 12px;
+  padding: 10px 6px;
+}
+.capture-left .trim-player {
+  min-height: 180px;
+}
+@media (max-height: 740px) {
+  .capture-left .trim-preview {
+    flex-basis: 300px;
+  }
+}
