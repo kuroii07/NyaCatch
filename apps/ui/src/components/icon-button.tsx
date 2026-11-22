@@ -8,7 +8,7 @@ import {
 import { useShallow } from "zustand/react/shallow";
 import { themeSelector, useSessionStore } from "@/store/session";
 import { cn } from "@/utils";
-import { Tooltip } from "antd";
+import { Tooltip } from "@/components/tooltip";
 
 interface Props extends PropsWithChildren {
   title?: string;

@@ -45,7 +45,7 @@
   align-items: center;
   max-width: 100%;
   min-width: 0;
-  border-radius: 6px;
+  border-radius: var(--nc-r-sm);
   background: var(--wb-soft);
 }
 .compress-file.is-active {
@@ -57,7 +57,7 @@
   color: var(--wb-ink);
   cursor: pointer;
   padding: 6px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-file button:first-child {
   white-space: nowrap;
@@ -79,7 +79,7 @@
 }
 .compress-page .cvt-field > span {
   display: block;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-weight: 700;
   margin-bottom: 8px;
   color: var(--wb-ink);
@@ -91,10 +91,10 @@
   height: 40px;
   padding: 8px 10px;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .compress-pair {
   display: grid;
@@ -105,7 +105,7 @@
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-preview-tabs button {
   padding: 5px 9px;
@@ -121,7 +121,7 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-trial input,
 .compress-trial select {
@@ -129,7 +129,7 @@
   width: 116px;
   border: 1px solid var(--wb-line);
   padding: 7px;
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
 }
@@ -138,16 +138,16 @@
 }
 .compress-trial small {
   flex-basis: 100%;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   overflow-wrap: anywhere;
 }
 .compress-result {
   flex: none;
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-soft);
   padding: 9px 11px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   display: flex;
   align-items: center;
   gap: 6px 10px;
@@ -160,7 +160,7 @@
 }
 .compress-result button {
   padding: 5px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-page .cvt-actions .wb-primary {
   white-space: normal;
@@ -172,7 +172,7 @@
   margin: 18px 0 10px;
   border-top: 1px solid var(--wb-line);
   padding-top: 12px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-subtitle summary {
   cursor: pointer;
@@ -197,7 +197,7 @@
 }
 .compress-subtitle-body small {
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -211,7 +211,7 @@
 }
 .compress-subtitle .wb-secondary {
   padding: 6px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-subtitle .cvt-field {
   margin: 0;
@@ -248,12 +248,12 @@
 }
 .compress-subtitle-preview .wb-secondary {
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .compress-subtitle-preview-hint {
   flex: none;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
   margin-top: 5px;
 }

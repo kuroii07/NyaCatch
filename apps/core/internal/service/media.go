@@ -345,6 +345,7 @@ func (r *MediaResolver) metadataResource(ctx context.Context, input, route, reso
 		// yt-dlp may return only the video part of a mixed X post. Inspect the
 		// finite public inventory, while retaining the primary route for one video.
 		if _, xe := xmedia.StatusID(input); xe == nil && resource == "" && r.extract == nil {
+			mediaParseProgress(ctx, "inventory")
 			if inventory, e := xmedia.FetchInventory(ctx, input, filepath.Dir(r.Binary), proxy); e == nil {
 				return inventory, nil
 			}
@@ -388,9 +389,10 @@ func (r *MediaResolver) metadataResource(ctx context.Context, input, route, reso
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || !xmedia.ShouldFallback(input, err.Error()) {
 		return nil, err
 	}
+	mediaParseProgress(ctx, "fallback")
 	data, fallbackErr := public(ctx, input, filepath.Dir(r.Binary), proxy)
 	if fallbackErr != nil {
-		return nil, fmt.Errorf("%w; anonymous X fallback failed: %v", err, fallbackErr)
+		return nil, &mediaParseError{primary: err, fallback: fallbackErr}
 	}
 	return data, nil
 }

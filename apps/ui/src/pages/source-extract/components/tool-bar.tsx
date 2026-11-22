@@ -1,6 +1,7 @@
 import { EyeInvisibleOutlined } from "@ant-design/icons";
 import { useMemoizedFn } from "ahooks";
-import { Input, Tooltip } from "antd";
+import { Input } from "antd";
+import { Tooltip } from "@/components/tooltip";
 import { type KeyboardEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";

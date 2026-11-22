@@ -11,13 +11,16 @@ import {
   RefreshCw,
   ShieldCheck,
   UploadCloud,
-  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LocalFileCheck } from "@mediago/shared-common";
 import { getConversions } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useMergeWorkspace } from "@/store/merge-workspace";
 import {
   filenameForPath,
@@ -55,6 +58,7 @@ export default function MergePage() {
     [checked, setChecked] = useState(false),
     [revision, setRevision] = useState(0);
   const generation = useRef(0),
+    cancelInspection = useRef<(() => void) | undefined>(undefined),
     adding = useRef(false),
     dragged = useRef<string | undefined>(undefined);
   const tasks = useConversions({ current: page, pageSize: 50, kind: "merge" });
@@ -104,6 +108,27 @@ export default function MergePage() {
   function change(patch: Partial<MergeDraft>) {
     edit((current) => ({ ...current, ...patch }));
   }
+  function removeSource(id = useMergeWorkspace.getState().draft.activeId) {
+    const state = useMergeWorkspace.getState();
+    if (
+      state.busy ||
+      state.draft.locked ||
+      adding.current ||
+      !state.draft.items.some((item) => item.id === id)
+    )
+      return;
+    if (!save((value) => removeMergeItem(value, id))) {
+      message.error(t("mgStorageError"));
+      return;
+    }
+    generation.current++;
+    cancelInspection.current?.();
+    setReading(false);
+    // Duplicate items can share a path, leaving the inspection signature unchanged.
+    setRefresh((value) => value + 1);
+    dragged.current = undefined;
+    setChecked(false);
+  }
   useEffect(() => {
     const prevent = (event: globalThis.DragEvent) => {
       if (Array.from(event.dataTransfer?.types || []).includes("Files"))
@@ -119,6 +144,10 @@ export default function MergePage() {
   }, []);
   useEffect(() => {
     let cancelled = false;
+    const cancel = () => {
+      cancelled = true;
+    };
+    cancelInspection.current = cancel;
     const paths: string[] = JSON.parse(signature);
     setFiles([]);
     setChecked(false);
@@ -138,9 +167,7 @@ export default function MergePage() {
       .finally(() => {
         if (!cancelled) setReading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return cancel;
   }, [signature, refresh, shell]);
   async function add(paths: string[], epoch: number, snapshot: MergeDraft) {
     if (epoch !== generation.current || !paths.length) return;
@@ -383,186 +410,205 @@ export default function MergePage() {
       <div className="cvt-workspace">
         <div className="cvt-body merge-grid">
           <section
-            className="merge-left"
+            className={`merge-left${!draft.items.length ? " nc-source-empty-host" : ""}`}
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => void drop(event)}
             data-testid="merge-dropzone"
           >
-            <div className="merge-source-bar">
-              <div>
-                <strong title={active?.path}>
-                  {active ? filenameForPath(active.path) : t("mgDrop")}
-                </strong>
-                <small data-testid="merge-total">
-                  {t("mgTotal", {
-                    count: draft.items.length,
-                    duration: formatTrimTime(total),
-                  })}
-                </small>
-              </div>
-              <button
-                type="button"
-                className="wb-icon-button"
-                disabled={disabled || reading || !draft.items.length}
-                aria-label={t("cReload")}
-                title={t("cReload")}
-                onClick={() => setRefresh((value) => value + 1)}
-              >
-                <RefreshCw size={16} />
-              </button>
-              <button
-                type="button"
-                className="wb-secondary"
-                disabled={
-                  disabled || reading || draft.items.length >= MERGE_LIMIT
-                }
-                data-testid="merge-add"
-                onClick={() => void choose()}
-              >
-                <ListPlus size={15} />
-                {t("mgAdd")}
-              </button>
-            </div>
-            {active && media && media.durationMs > 0 ? (
-              <TrimPreview
-                key={active.id}
-                previewOnly
-                path={active.path}
-                hasVideo={media.hasVideo}
-                duration={media.durationMs}
-                start={formatTrimTime(0)}
-                end={formatTrimTime(media.durationMs)}
-                disabled={disabled}
-                change={() => {}}
+            {!draft.items.length ? (
+              <MediaSourceEmpty
+                title={t("mgDrop")}
+                detail={t("mgNeedFiles")}
+                chooseTestId="merge-add"
+                disabled={disabled || reading}
+                onChoose={() => void choose()}
               />
             ) : (
-              <div className="merge-empty-preview">
-                <UploadCloud size={38} />
-                <p>
-                  {t(
-                    draft.items.length
-                      ? reading
-                        ? "c11Checking"
-                        : "mgInvalidFiles"
-                      : "mgDrop",
-                  )}
-                </p>
-                <small>{t("mgNeedFiles")}</small>
-              </div>
-            )}
-            <div className="merge-list-heading">
-              <strong>
-                {t("mgFiles")} {draft.items.length}/{MERGE_LIMIT}
-              </strong>
-              <small>{t("mgOrder")}</small>
-            </div>
-            <div
-              className="merge-list"
-              data-testid="merge-list"
-              role="list"
-              aria-label={t("mgFiles")}
-            >
-              {draft.items.map((item, index) => (
-                <div
-                  role="listitem"
-                  key={item.id}
-                  data-testid="merge-item"
-                  className={`merge-item ${item.id === draft.activeId ? "is-active" : ""}`}
-                  onDragOver={(event) => {
-                    if (dragged.current) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      event.dataTransfer.dropEffect = "move";
-                    }
-                  }}
-                  onDrop={(event) => {
-                    if (dragged.current) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      const id = dragged.current;
-                      dragged.current = undefined;
-                      edit((value) => moveMergeItem(value, id, index));
-                    }
-                  }}
-                >
-                  <span
-                    className="merge-grip"
-                    draggable={!disabled && !reading}
-                    onDragStart={(event) => {
-                      dragged.current = item.id;
-                      event.dataTransfer.effectAllowed = "move";
-                      event.dataTransfer.setData(
-                        "application/x-nyacatch-merge-item",
-                        item.id,
-                      );
-                    }}
-                    onDragEnd={() => {
-                      dragged.current = undefined;
-                    }}
-                    title={t("mgOrder")}
-                  >
-                    <GripVertical size={15} />
-                  </span>
-                  <button
-                    type="button"
-                    className="merge-select"
-                    disabled={disabled}
-                    aria-pressed={item.id === draft.activeId}
-                    onClick={() => change({ activeId: item.id })}
-                    title={item.path}
-                  >
-                    <span>
-                      {index + 1}. {filenameForPath(item.path)}
-                    </span>
-                    <small
-                      className={!ordered[index]?.available ? "cvt-error" : ""}
-                    >
-                      {ordered[index]?.media
-                        ? formatTrimTime(ordered[index].media?.durationMs || 0)
-                        : t(reading ? "c11Checking" : "c11Missing")}
+              <>
+                <div className="merge-source-bar">
+                  <div>
+                    <strong title={active?.path}>
+                      {active ? filenameForPath(active.path) : t("mgDrop")}
+                    </strong>
+                    <small data-testid="merge-total">
+                      {t("mgTotal", {
+                        count: draft.items.length,
+                        duration: formatTrimTime(total),
+                      })}
                     </small>
-                  </button>
+                  </div>
                   <button
-                    className="wb-icon-button"
                     type="button"
-                    aria-label={t("mgUp")}
-                    title={t("mgUp")}
-                    disabled={disabled || reading || index === 0}
-                    onClick={() =>
-                      edit((value) => moveMergeItem(value, item.id, index - 1))
-                    }
+                    className="wb-icon-button"
+                    disabled={disabled || reading || !draft.items.length}
+                    aria-label={t("cReload")}
+                    title={t("cReload")}
+                    onClick={() => setRefresh((value) => value + 1)}
                   >
-                    <ArrowUp size={14} />
+                    <RefreshCw size={16} />
                   </button>
                   <button
-                    className="wb-icon-button"
                     type="button"
-                    aria-label={t("mgDown")}
-                    title={t("mgDown")}
+                    className="wb-secondary"
                     disabled={
-                      disabled || reading || index === draft.items.length - 1
+                      disabled || reading || draft.items.length >= MERGE_LIMIT
                     }
-                    onClick={() =>
-                      edit((value) => moveMergeItem(value, item.id, index + 1))
-                    }
+                    data-testid="merge-add"
+                    onClick={() => void choose()}
                   >
-                    <ArrowDown size={14} />
+                    <ListPlus size={15} />
+                    {t("mgAdd")}
                   </button>
-                  <button
-                    className="wb-icon-button"
-                    type="button"
-                    aria-label={t("mgRemove")}
-                    title={t("mgRemove")}
-                    disabled={disabled || reading}
-                    onClick={() =>
-                      edit((value) => removeMergeItem(value, item.id))
-                    }
-                  >
-                    <X size={14} />
-                  </button>
+                  <SourceRemoveButton
+                    testId="merge-remove-source"
+                    disabled={disabled || adding.current || !active}
+                    onRemove={() => removeSource()}
+                  />
                 </div>
-              ))}
-            </div>
+                {active && media && media.durationMs > 0 ? (
+                  <TrimPreview
+                    key={active.id}
+                    previewOnly
+                    path={active.path}
+                    hasVideo={media.hasVideo}
+                    duration={media.durationMs}
+                    start={formatTrimTime(0)}
+                    end={formatTrimTime(media.durationMs)}
+                    disabled={disabled}
+                    change={() => {}}
+                  />
+                ) : (
+                  <div className="merge-empty-preview">
+                    <UploadCloud size={38} />
+                    <p>
+                      {t(
+                        draft.items.length
+                          ? reading
+                            ? "c11Checking"
+                            : "mgInvalidFiles"
+                          : "mgDrop",
+                      )}
+                    </p>
+                    <small>{t("mgNeedFiles")}</small>
+                  </div>
+                )}
+                <div className="merge-list-heading">
+                  <strong>
+                    {t("mgFiles")} {draft.items.length}/{MERGE_LIMIT}
+                  </strong>
+                  <small>{t("mgOrder")}</small>
+                </div>
+                <div
+                  className="merge-list"
+                  data-testid="merge-list"
+                  role="list"
+                  aria-label={t("mgFiles")}
+                >
+                  {draft.items.map((item, index) => (
+                    <div
+                      role="listitem"
+                      key={item.id}
+                      data-testid="merge-item"
+                      className={`merge-item ${item.id === draft.activeId ? "is-active" : ""}`}
+                      onDragOver={(event) => {
+                        if (dragged.current) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          event.dataTransfer.dropEffect = "move";
+                        }
+                      }}
+                      onDrop={(event) => {
+                        if (dragged.current) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          const id = dragged.current;
+                          dragged.current = undefined;
+                          edit((value) => moveMergeItem(value, id, index));
+                        }
+                      }}
+                    >
+                      <span
+                        className="merge-grip"
+                        draggable={!disabled && !reading}
+                        onDragStart={(event) => {
+                          dragged.current = item.id;
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setData(
+                            "application/x-nyacatch-merge-item",
+                            item.id,
+                          );
+                        }}
+                        onDragEnd={() => {
+                          dragged.current = undefined;
+                        }}
+                        title={t("mgOrder")}
+                      >
+                        <GripVertical size={15} />
+                      </span>
+                      <button
+                        type="button"
+                        className="merge-select"
+                        disabled={disabled}
+                        aria-pressed={item.id === draft.activeId}
+                        onClick={() => change({ activeId: item.id })}
+                        title={item.path}
+                      >
+                        <span>
+                          {index + 1}. {filenameForPath(item.path)}
+                        </span>
+                        <small
+                          className={
+                            !ordered[index]?.available ? "cvt-error" : ""
+                          }
+                        >
+                          {ordered[index]?.media
+                            ? formatTrimTime(
+                                ordered[index].media?.durationMs || 0,
+                              )
+                            : t(reading ? "c11Checking" : "c11Missing")}
+                        </small>
+                      </button>
+                      <button
+                        className="wb-icon-button"
+                        type="button"
+                        aria-label={t("mgUp")}
+                        title={t("mgUp")}
+                        disabled={disabled || reading || index === 0}
+                        onClick={() =>
+                          edit((value) =>
+                            moveMergeItem(value, item.id, index - 1),
+                          )
+                        }
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        className="wb-icon-button"
+                        type="button"
+                        aria-label={t("mgDown")}
+                        title={t("mgDown")}
+                        disabled={
+                          disabled ||
+                          reading ||
+                          index === draft.items.length - 1
+                        }
+                        onClick={() =>
+                          edit((value) =>
+                            moveMergeItem(value, item.id, index + 1),
+                          )
+                        }
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                      <SourceRemoveButton
+                        disabled={disabled || adding.current}
+                        onRemove={() => removeSource(item.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
           <aside className="cvt-settings merge-settings">
             <div className="cvt-settings-scroll">

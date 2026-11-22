@@ -42,6 +42,7 @@ import { setupHttp } from "./utils/http";
 import { getConfig } from "./api/config";
 import { initGoEvents, onConfigChanged } from "./api/events";
 import { DownloadFilter } from "@mediago/shared-common";
+import "./components/brand-moments.css";
 import { useAuth } from "./hooks/use-auth";
 import { Locale } from "antd/es/locale";
 
@@ -93,6 +94,12 @@ const App: FC = () => {
     update();
     return () => preference.removeEventListener("change", update);
   }, [adapterReady]);
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.ncMotion = reducedMotion
+      ? "reduced"
+      : "full";
+  }, [reducedMotion]);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -263,6 +270,7 @@ const App: FC = () => {
       locale={appLocale}
       wave={{ disabled: reducedMotion }}
       componentSize="middle"
+      tooltip={{ className: "nc-motion-tooltip" }}
       theme={{
         algorithm: getAlgorithm(theme),
         token: {
@@ -270,7 +278,18 @@ const App: FC = () => {
           colorPrimary: colors.focus,
           colorBgBase: colors.canvas,
           colorBgContainer: colors.surface,
-          colorBgElevated: colors.surface,
+          colorBgElevated: colors.raised,
+          colorSuccess: colors.success,
+          colorWarning: colors.warning,
+          colorError: colors.error,
+          colorInfo: colors.info,
+          motionDurationFast: "0.14s",
+          motionDurationMid: "0.22s",
+          motionDurationSlow: "0.36s",
+          motionEaseInOut: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+          fontSize: 13,
+          fontSizeSM: 12,
+          fontSizeLG: 16,
           colorBgContainerDisabled: colors.disabled,
           colorBorder: colors.line,
           colorBorderSecondary: colors.line,
@@ -309,7 +328,14 @@ const App: FC = () => {
         },
       }}
     >
-      <AntdApp className="size-full overflow-hidden">
+      <AntdApp
+        className="size-full overflow-hidden"
+        message={{
+          top: 48,
+          classNames: { root: "nc-motion-message" },
+          styles: { root: { textAlign: "start", paddingInline: 22 } },
+        }}
+      >
         <Routes>
           <Route
             path="/"

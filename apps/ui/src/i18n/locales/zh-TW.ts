@@ -119,6 +119,7 @@ export const zhTWUi: Record<
   v4StartDownload: "開始下載",
   v4SaveCover: "儲存封面",
   v4DownloadStarted: "已建立任務並開始下載",
+  v4StartUnconfirmed: "已建立任務，請到佇列確認啟動狀態",
   v4QueueAdded: "已加入佇列，等待手動開始",
   v4TasksHint: "查看進度，管理下載與本機檔案",
   v4Search: "搜尋名稱或來源連結",
@@ -204,17 +205,16 @@ export const zhTWUi: Record<
   sThemeDesc_sakura: "粉白與櫻粉，細膩明快",
   sThemeDesc_sunset: "杏白與暖橙，明亮有活力",
   sSelected: "已選用",
-  sProxyHint: "在這裡設定代理伺服器位址與現有的兩個開關。",
-  sProxyScope:
-    "僅變更喵拾內部網路設定，不修改系統或其他軟體。連結解析與新版下載沿用「代理伺服器」開關；下載代理開關保留原有適用範圍。",
+  sProxyHint: "設定喵拾使用的代理伺服器位址。",
+  sProxyScope: "僅套用於喵拾，不修改系統或其他軟體的代理設定。",
   sProxyAddressHint:
     "支援 http://、https://、socks5:// 與 socks5h:// 位址；留空表示尚未設定。",
   sProxyInvalid: "請輸入包含通訊協定與主機名稱的有效代理伺服器位址。",
   sProxyRequired: "啟用代理伺服器前，請先輸入有效位址。",
   sProxySwitchHint:
-    "開啟時使用上述位址；關閉時素材瀏覽跟隨系統代理。連結解析與下載保留既有開關行為。",
+    "開啟後，連結解析、新下載與素材瀏覽使用上述位址；關閉後，解析與下載不使用此位址，素材瀏覽跟隨系統代理。",
   sDownloadProxyHint:
-    "保留現有的下載代理伺服器設定，其適用範圍沿用目前的實作。",
+    "此項僅保留舊版偏好，目前的下載流程不讀取此開關；請透過上方「使用此代理伺服器」控制下載代理。",
   sApply: "套用變更",
   sResetDraft: "捨棄未儲存的變更",
   sSaved: "已儲存",

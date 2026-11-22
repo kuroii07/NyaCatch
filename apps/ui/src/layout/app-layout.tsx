@@ -1,5 +1,5 @@
 import { useAsyncEffect } from "ahooks";
-import { type FC, useEffect } from "react";
+import { type FC, useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useShallow } from "zustand/react/shallow";
 import { CHANGE_PAGE } from "@/const";
@@ -12,9 +12,12 @@ import { FolderOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AppBackground } from "@/components/app-background";
 import { useAppearance } from "@/store/appearance";
+import { useRouteMotion } from "@/hooks/use-route-motion";
 
 const App: FC = () => {
   const location = useLocation();
+  const main = useRef<HTMLElement>(null);
+  useRouteMotion(main, location.pathname);
   const { t } = useTranslation();
   const local = useAppStore((state) => state.local);
   const hasBackground = useAppearance(
@@ -36,12 +39,16 @@ const App: FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="media-app" data-background={hasBackground ? "on" : "off"}>
+    <div
+      className="media-app"
+      data-background={hasBackground ? "on" : "off"}
+      data-native-route={location.pathname === "/source" ? "true" : undefined}
+    >
       <AppBackground />
       <AppHeader className="shrink-0" />
       <div className="wb-app-body">
         <AppSideBar />
-        <main className="wb-main">
+        <main className="wb-main" ref={main}>
           <Outlet />
         </main>
       </div>
@@ -51,7 +58,6 @@ const App: FC = () => {
         <span className="wb-status-path" title={local}>
           {local || "—"}
         </span>
-        <small>{t("wbBuild")}</small>
       </footer>
     </div>
   );

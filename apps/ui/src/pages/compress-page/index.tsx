@@ -8,7 +8,6 @@ import {
   RefreshCw,
   ShieldCheck,
   UploadCloud,
-  X,
   Subtitles,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +20,10 @@ import {
 } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useCompressionWorkspace } from "@/store/compress-workspace";
 import {
   filenameForPath,
@@ -104,6 +107,7 @@ export default function CompressPage() {
     [trialStart, setTrialStart] = useState(formatTrimTime(0)),
     [sourceSeek, setSourceSeek] = useState<{ ms: number; revision: number }>();
   const generation = useRef(0),
+    cancelInspection = useRef<(() => void) | undefined>(undefined),
     subtitleChoice = useRef(0),
     adding = useRef(false),
     positionRef = useRef<(() => number | undefined) | undefined>(undefined);
@@ -224,6 +228,45 @@ export default function CompressPage() {
     const state = useCompressionWorkspace.getState();
     edit({ settings: { ...state.draft.settings, ...patch } });
   }
+  function removeSource(
+    path = useCompressionWorkspace.getState().draft.activePath,
+  ) {
+    const state = useCompressionWorkspace.getState();
+    if (
+      state.busy ||
+      state.draft.locked ||
+      adding.current ||
+      subtitleChoosing ||
+      !state.draft.paths.includes(path)
+    )
+      return;
+    const removingActive = path === state.draft.activePath;
+    if (
+      !save((value) => ({
+        ...removeCompressionSource(value, path),
+        ...(removingActive ? { trialId: 0 } : {}),
+      }))
+    ) {
+      message.error(t("vpStorage"));
+      return;
+    }
+    generation.current++;
+    cancelInspection.current?.();
+    setReading(false);
+    if (removingActive) {
+      subtitleChoice.current++;
+      setSubtitleChoosing(false);
+      setShowResult(false);
+      setShowSubtitle(false);
+      setSubtitleOpen(false);
+      setSubtitleAt(0);
+      setTrialStart(formatTrimTime(0));
+      setSourceSeek(undefined);
+      positionRef.current = undefined;
+      setSubtitleFormValid(true);
+    }
+    setChecked(false);
+  }
   function changeSubtitle(value?: SubtitleBinding) {
     const state = useCompressionWorkspace.getState();
     if (state.busy || state.draft.locked || !state.draft.activePath) return;
@@ -306,6 +349,10 @@ export default function CompressPage() {
   }, []);
   useEffect(() => {
     let cancelled = false;
+    const cancel = () => {
+      cancelled = true;
+    };
+    cancelInspection.current = cancel;
     const paths: string[] = JSON.parse(signature);
     setFiles([]);
     setChecked(false);
@@ -325,9 +372,7 @@ export default function CompressPage() {
       .finally(() => {
         if (!cancelled) setReading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return cancel;
   }, [signature, refresh, shell]);
   useEffect(() => {
     subtitleChoice.current++;
@@ -704,263 +749,282 @@ export default function CompressPage() {
       <div className="cvt-workspace">
         <div className="cvt-body merge-grid">
           <section
-            className="merge-left compress-left"
+            className={`merge-left compress-left${!draft.paths.length ? " nc-source-empty-host" : ""}`}
             data-testid="compress-dropzone"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => void drop(e)}
           >
-            <div className="merge-source-bar">
-              <div>
-                <strong title={draft.activePath}>
-                  {draft.activePath
-                    ? filenameForPath(draft.activePath)
-                    : t("vpDrop")}
-                </strong>
-                <small>
-                  {active?.available
-                    ? `${byteSize(active.size)} · ${formatTrimTime(duration)} · ${active.video?.width || 0} × ${active.video?.height || 0}`
-                    : t("vpNeedFiles")}
-                </small>
-              </div>
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="compress-add-subtitle"
-                disabled={
-                  disabled || reading || subtitleChoosing || !active?.available
-                }
-                onClick={() => {
-                  setSubtitleOpen(true);
-                  void chooseSubtitle();
-                }}
-              >
-                <Subtitles size={16} />
-                {t(binding ? "vpSubReplace" : "vpSubChoose")}
-              </button>
-              <button
-                type="button"
-                className="wb-icon-button"
-                disabled={disabled || reading || !draft.paths.length}
-                title={t("cReload")}
-                aria-label={t("cReload")}
-                onClick={() => setRefresh((v) => v + 1)}
-              >
-                <RefreshCw size={16} />
-              </button>
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="compress-add"
-                disabled={disabled || reading || draft.paths.length >= 20}
-                onClick={() => void choose()}
-              >
-                <FolderOpen size={16} />
-                {t("cChoose")}
-              </button>
-            </div>
-            {(trialReady || !!activeSubtitle) && (
-              <div
-                className="compress-preview-tabs"
-                role="group"
-                aria-label={t("vpCompare")}
-              >
-                <button
-                  type="button"
-                  className="wb-secondary"
-                  data-testid="compress-source-preview"
-                  aria-pressed={!showResult && !showSubtitle}
-                  onClick={() => {
-                    setShowResult(false);
-                    setShowSubtitle(false);
-                    setSourceSeek((v) => ({
-                      ms: showSubtitle
-                        ? subtitleAt
-                        : trialRow?.options?.compress?.trial?.startMs || 0,
-                      revision: (v?.revision || 0) + 1,
-                    }));
-                  }}
-                >
-                  {t("vpSource")}
-                </button>
-                {trialReady && (
-                  <button
-                    type="button"
-                    className="wb-secondary"
-                    data-testid="compress-output-preview"
-                    disabled={trialFile && !trialFile.available}
-                    aria-pressed={showResult}
-                    onClick={() => {
-                      setShowSubtitle(false);
-                      setShowResult(true);
-                    }}
-                  >
-                    {t("vpTrialResult")}
-                  </button>
-                )}
-                {!!activeSubtitle && (
-                  <button
-                    type="button"
-                    className="wb-secondary"
-                    data-testid="compress-subtitle-preview"
-                    aria-pressed={showSubtitle}
-                    disabled={
-                      subtitleChecks.pending ||
-                      !!subtitleChecks.errors[draft.activePath] ||
-                      !subtitleFormValid
-                    }
-                    onClick={() =>
-                      seekSubtitle(
-                        positionRef.current?.() ??
-                          parseTrimTime(trialStart) ??
-                          0,
-                      )
-                    }
-                  >
-                    {t("vpSubFrame")}
-                  </button>
-                )}
-              </div>
-            )}
-            {active?.available && active.media?.hasVideo && duration > 0 ? (
-              showSubtitle && activeSubtitle ? (
-                <SubtitlePreview
-                  path={draft.activePath}
-                  maxEdge={s.maxEdge}
-                  atMs={subtitleAt}
-                  subtitle={activeSubtitle}
-                  refresh={subtitleRefresh + refresh}
-                />
-              ) : (
-                <TrimPreview
-                  key={previewPath}
-                  previewOnly
-                  previewErrorKey="vpPreviewFailed"
-                  path={previewPath}
-                  hasVideo
-                  duration={previewDuration}
-                  start={formatTrimTime(0)}
-                  end={formatTrimTime(previewDuration)}
-                  disabled={disabled}
-                  change={() => {}}
-                  positionRef={positionRef}
-                  seekTo={previewOutput ? undefined : sourceSeek}
-                  onPositionChange={(ms) => {
-                    if (!previewOutput) setTrialStart(formatTrimTime(ms));
-                  }}
-                />
-              )
-            ) : (
-              <div className="merge-empty-preview">
-                <UploadCloud size={38} />
-                <p>
-                  {t(
-                    reading
-                      ? "c11Checking"
-                      : draft.paths.length
-                        ? "vpInvalidFiles"
-                        : "vpDrop",
-                  )}
-                </p>
-                <small>{t("vpLimit")}</small>
-              </div>
-            )}
-            <div className="compress-file-list" aria-label={t("vpFiles")}>
-              {draft.paths.map((path) => (
-                <div
-                  className={`compress-file ${path === draft.activePath ? "is-active" : ""}`}
-                  key={path}
-                  data-testid="compress-file"
-                >
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    title={path}
-                    aria-pressed={path === draft.activePath}
-                    onClick={() => edit({ activePath: path })}
-                  >
-                    {filenameForPath(path)}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    title={t("cRemoveDraft")}
-                    aria-label={t("cRemoveDraft")}
-                    onClick={() => {
-                      edit(removeCompressionSource(draft, path));
-                    }}
-                  >
-                    <X size={13} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="compress-trial">
-              <label htmlFor="compress-trial-time">{t("vpTrialStart")}</label>
-              <input
-                id="compress-trial-time"
-                data-testid="compress-trial-time"
-                disabled={disabled || showResult}
-                value={trialStart}
-                onFocus={() => positionRef.current?.()}
-                onChange={(e) => setTrialStart(e.target.value)}
+            {!draft.paths.length ? (
+              <MediaSourceEmpty
+                title={t("vpDrop")}
+                detail={t("vpLimit")}
+                chooseTestId="compress-add"
+                disabled={disabled || reading || subtitleChoosing}
+                onChoose={() => void choose()}
               />
-              <button
-                type="button"
-                className="wb-secondary"
-                disabled={disabled || !active || showResult}
-                onClick={locate}
-              >
-                {t("capLocate")}
-              </button>
-              <select
-                data-testid="compress-trial-length"
-                aria-label={t("vpTrialLength")}
-                disabled={disabled}
-                value={draft.trialSeconds}
-                onChange={(e) => edit({ trialSeconds: Number(e.target.value) })}
-              >
-                {[5, 10, 20, 30].map((n) => (
-                  <option key={n} value={n}>
-                    {n} s
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="compress-trial"
-                disabled={!trialValid}
-                onClick={() => void submit(true, true)}
-              >
-                {t("vpTrial")}
-              </button>
-              <small>{t("vpTrialHint")}</small>
-            </div>
-            {trialRow?.status === "done" && (
-              <div className="compress-result">
-                <strong>{t("vpTrialResult")}</strong>
-                <CompressionSize
-                  row={trialRow}
-                  file={trialFile}
-                  failed={trialOutputs.failed}
-                />
-                <button
-                  type="button"
-                  className="wb-secondary"
-                  disabled={trialFile && !trialFile.available}
-                  onClick={() =>
-                    void action(() => shell.reveal(trialRow.outputPath))
-                  }
-                >
-                  <FolderOpen size={14} />
-                  {t("cOpenFolder")}
-                </button>
-              </div>
-            )}
-            {trial.error && (
-              <p className="trim-hint" role="status">
-                {t("trProgressFailed")}
-              </p>
+            ) : (
+              <>
+                <div className="merge-source-bar">
+                  <div>
+                    <strong title={draft.activePath}>
+                      {draft.activePath
+                        ? filenameForPath(draft.activePath)
+                        : t("vpDrop")}
+                    </strong>
+                    <small>
+                      {active?.available
+                        ? `${byteSize(active.size)} · ${formatTrimTime(duration)} · ${active.video?.width || 0} × ${active.video?.height || 0}`
+                        : t("vpNeedFiles")}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="compress-add-subtitle"
+                    disabled={
+                      disabled ||
+                      reading ||
+                      subtitleChoosing ||
+                      !active?.available
+                    }
+                    onClick={() => {
+                      setSubtitleOpen(true);
+                      void chooseSubtitle();
+                    }}
+                  >
+                    <Subtitles size={16} />
+                    {t(binding ? "vpSubReplace" : "vpSubChoose")}
+                  </button>
+                  <button
+                    type="button"
+                    className="wb-icon-button"
+                    disabled={disabled || reading || !draft.paths.length}
+                    title={t("cReload")}
+                    aria-label={t("cReload")}
+                    onClick={() => setRefresh((v) => v + 1)}
+                  >
+                    <RefreshCw size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="compress-add"
+                    disabled={disabled || reading || draft.paths.length >= 20}
+                    onClick={() => void choose()}
+                  >
+                    <FolderOpen size={16} />
+                    {t("cChoose")}
+                  </button>
+                  <SourceRemoveButton
+                    testId="compress-remove-source"
+                    disabled={disabled || adding.current || subtitleChoosing}
+                    onRemove={() => removeSource()}
+                  />
+                </div>
+                {(trialReady || !!activeSubtitle) && (
+                  <div
+                    className="compress-preview-tabs"
+                    role="group"
+                    aria-label={t("vpCompare")}
+                  >
+                    <button
+                      type="button"
+                      className="wb-secondary"
+                      data-testid="compress-source-preview"
+                      aria-pressed={!showResult && !showSubtitle}
+                      onClick={() => {
+                        setShowResult(false);
+                        setShowSubtitle(false);
+                        setSourceSeek((v) => ({
+                          ms: showSubtitle
+                            ? subtitleAt
+                            : trialRow?.options?.compress?.trial?.startMs || 0,
+                          revision: (v?.revision || 0) + 1,
+                        }));
+                      }}
+                    >
+                      {t("vpSource")}
+                    </button>
+                    {trialReady && (
+                      <button
+                        type="button"
+                        className="wb-secondary"
+                        data-testid="compress-output-preview"
+                        disabled={trialFile && !trialFile.available}
+                        aria-pressed={showResult}
+                        onClick={() => {
+                          setShowSubtitle(false);
+                          setShowResult(true);
+                        }}
+                      >
+                        {t("vpTrialResult")}
+                      </button>
+                    )}
+                    {!!activeSubtitle && (
+                      <button
+                        type="button"
+                        className="wb-secondary"
+                        data-testid="compress-subtitle-preview"
+                        aria-pressed={showSubtitle}
+                        disabled={
+                          subtitleChecks.pending ||
+                          !!subtitleChecks.errors[draft.activePath] ||
+                          !subtitleFormValid
+                        }
+                        onClick={() =>
+                          seekSubtitle(
+                            positionRef.current?.() ??
+                              parseTrimTime(trialStart) ??
+                              0,
+                          )
+                        }
+                      >
+                        {t("vpSubFrame")}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {active?.available && active.media?.hasVideo && duration > 0 ? (
+                  showSubtitle && activeSubtitle ? (
+                    <SubtitlePreview
+                      path={draft.activePath}
+                      maxEdge={s.maxEdge}
+                      atMs={subtitleAt}
+                      subtitle={activeSubtitle}
+                      refresh={subtitleRefresh + refresh}
+                    />
+                  ) : (
+                    <TrimPreview
+                      key={previewPath}
+                      previewOnly
+                      previewErrorKey="vpPreviewFailed"
+                      path={previewPath}
+                      hasVideo
+                      duration={previewDuration}
+                      start={formatTrimTime(0)}
+                      end={formatTrimTime(previewDuration)}
+                      disabled={disabled}
+                      change={() => {}}
+                      positionRef={positionRef}
+                      seekTo={previewOutput ? undefined : sourceSeek}
+                      onPositionChange={(ms) => {
+                        if (!previewOutput) setTrialStart(formatTrimTime(ms));
+                      }}
+                    />
+                  )
+                ) : (
+                  <div className="merge-empty-preview">
+                    <UploadCloud size={38} />
+                    <p>
+                      {t(
+                        reading
+                          ? "c11Checking"
+                          : draft.paths.length
+                            ? "vpInvalidFiles"
+                            : "vpDrop",
+                      )}
+                    </p>
+                    <small>{t("vpLimit")}</small>
+                  </div>
+                )}
+                <div className="compress-file-list" aria-label={t("vpFiles")}>
+                  {draft.paths.map((path) => (
+                    <div
+                      className={`compress-file ${path === draft.activePath ? "is-active" : ""}`}
+                      key={path}
+                      data-testid="compress-file"
+                    >
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        title={path}
+                        aria-pressed={path === draft.activePath}
+                        onClick={() => edit({ activePath: path })}
+                      >
+                        {filenameForPath(path)}
+                      </button>
+                      <SourceRemoveButton
+                        disabled={
+                          disabled || adding.current || subtitleChoosing
+                        }
+                        onRemove={() => removeSource(path)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="compress-trial">
+                  <label htmlFor="compress-trial-time">
+                    {t("vpTrialStart")}
+                  </label>
+                  <input
+                    id="compress-trial-time"
+                    data-testid="compress-trial-time"
+                    disabled={disabled || showResult}
+                    value={trialStart}
+                    onFocus={() => positionRef.current?.()}
+                    onChange={(e) => setTrialStart(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    disabled={disabled || !active || showResult}
+                    onClick={locate}
+                  >
+                    {t("capLocate")}
+                  </button>
+                  <select
+                    data-testid="compress-trial-length"
+                    aria-label={t("vpTrialLength")}
+                    disabled={disabled}
+                    value={draft.trialSeconds}
+                    onChange={(e) =>
+                      edit({ trialSeconds: Number(e.target.value) })
+                    }
+                  >
+                    {[5, 10, 20, 30].map((n) => (
+                      <option key={n} value={n}>
+                        {n} s
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="compress-trial"
+                    disabled={!trialValid}
+                    onClick={() => void submit(true, true)}
+                  >
+                    {t("vpTrial")}
+                  </button>
+                  <small>{t("vpTrialHint")}</small>
+                </div>
+                {trialRow?.status === "done" && (
+                  <div className="compress-result">
+                    <strong>{t("vpTrialResult")}</strong>
+                    <CompressionSize
+                      row={trialRow}
+                      file={trialFile}
+                      failed={trialOutputs.failed}
+                    />
+                    <button
+                      type="button"
+                      className="wb-secondary"
+                      disabled={trialFile && !trialFile.available}
+                      onClick={() =>
+                        void action(() => shell.reveal(trialRow.outputPath))
+                      }
+                    >
+                      <FolderOpen size={14} />
+                      {t("cOpenFolder")}
+                    </button>
+                  </div>
+                )}
+                {trial.error && (
+                  <p className="trim-hint" role="status">
+                    {t("trProgressFailed")}
+                  </p>
+                )}
+              </>
             )}
           </section>
           <aside className="cvt-settings">

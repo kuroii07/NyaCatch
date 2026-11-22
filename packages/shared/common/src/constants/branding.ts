@@ -1,7 +1,7 @@
 // Display branding is separate from APP_NAME, which owns existing data and URLs.
 export const APP_PRODUCT_NAME = "NyaCatch";
 export const APP_DISPLAY_NAME = "NyaCatch · 喵拾";
-export const APP_BUILD_VERSION = "0.25.0";
+export const APP_BUILD_VERSION = "0.26.0-beta.5";
 export const APP_IS_STABLE = !APP_BUILD_VERSION.includes("-");
 export const APP_PREVIEW_TITLE = APP_IS_STABLE
   ? `${APP_DISPLAY_NAME} ${APP_BUILD_VERSION}`

@@ -14,6 +14,10 @@ import type { LocalFileCheck } from "@mediago/shared-common";
 import { getConversions } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useCaptureWorkspace } from "@/store/capture-workspace";
 import {
   filenameForPath,
@@ -54,6 +58,7 @@ export default function CapturePage() {
     [time, setTime] = useState(formatTrimTime(0)),
     [seekTo, setSeekTo] = useState<{ ms: number; revision: number }>();
   const generation = useRef(0),
+    cancelInspection = useRef<(() => void) | undefined>(undefined),
     adding = useRef(false),
     positionRef = useRef<(() => number | undefined) | undefined>(undefined);
   const tasks = useConversions({
@@ -87,6 +92,33 @@ export default function CapturePage() {
     if (!save((value) => ({ ...value, ...patch })))
       message.error(t("capStorage"));
   }
+  function removeSource() {
+    const state = useCaptureWorkspace.getState();
+    if (state.busy || state.draft.locked || adding.current || !state.draft.path)
+      return;
+    if (
+      !save((value) => ({
+        ...value,
+        path: "",
+        start: formatTrimTime(0),
+        end: formatTrimTime(3000),
+        name: "",
+      }))
+    ) {
+      message.error(t("capStorage"));
+      return;
+    }
+    generation.current++;
+    cancelInspection.current?.();
+    setReading(false);
+    setFile(undefined);
+    setPosition(0);
+    setPreviewReady(false);
+    setSeekTo(undefined);
+    setTime(formatTrimTime(0));
+    positionRef.current = undefined;
+    setChecked(false);
+  }
   useEffect(() => {
     const prevent = (event: globalThis.DragEvent) => {
       if (Array.from(event.dataTransfer?.types || []).includes("Files"))
@@ -102,6 +134,11 @@ export default function CapturePage() {
   }, []);
   useEffect(() => {
     let cancelled = false;
+    // Removal invalidates a pending probe immediately, before effect cleanup.
+    const cancel = () => {
+      cancelled = true;
+    };
+    cancelInspection.current = cancel;
     setFile(undefined);
     setChecked(false);
     setPosition(0);
@@ -124,9 +161,7 @@ export default function CapturePage() {
       .finally(() => {
         if (!cancelled) setReading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return cancel;
   }, [draft.path, refresh, shell]);
   useEffect(() => {
     if (
@@ -389,99 +424,116 @@ export default function CapturePage() {
       <div className="cvt-workspace">
         <div className="cvt-body merge-grid">
           <section
-            className="merge-left capture-left"
+            className={`merge-left capture-left${!draft.path ? " nc-source-empty-host" : ""}`}
             data-testid="capture-dropzone"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => void drop(e)}
           >
-            <div className="merge-source-bar">
-              <div>
-                <strong title={draft.path}>
-                  {draft.path ? filenameForPath(draft.path) : t("capDrop")}
-                </strong>
-                <small>
-                  {validSource
-                    ? `${formatTrimTime(duration)} · ${file?.video?.width || 0} × ${file?.video?.height || 0}`
-                    : t("capOneFile")}
-                </small>
-              </div>
-              <button
-                type="button"
-                className="wb-icon-button"
-                disabled={disabled || reading || !draft.path}
-                title={t("cReload")}
-                aria-label={t("cReload")}
-                onClick={() => setRefresh((v) => v + 1)}
-              >
-                <RefreshCw size={16} />
-              </button>
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="capture-add"
+            {!draft.path ? (
+              <MediaSourceEmpty
+                title={t("capDrop")}
+                detail={t("capOneFile")}
+                chooseTestId="capture-add"
                 disabled={disabled || reading}
-                onClick={() => void choose()}
-              >
-                <FolderOpen size={15} />
-                {t(draft.path ? "capReplace" : "cChoose")}
-              </button>
-            </div>
-            {validSource ? (
-              <TrimPreview
-                key={`${draft.path}:${refresh}`}
-                previewOnly={draft.mode === "frame"}
-                previewErrorKey="capPreviewFailed"
-                path={draft.path}
-                hasVideo
-                duration={duration}
-                start={draft.start}
-                end={draft.end}
-                disabled={disabled}
-                change={edit}
-                onPositionChange={setPosition}
-                onReadyChange={setPreviewReady}
-                positionRef={positionRef}
-                seekTo={seekTo}
+                onChoose={() => void choose()}
               />
             ) : (
-              <div className="merge-empty-preview">
-                <UploadCloud size={38} />
-                <p>
-                  {t(
-                    reading
-                      ? "c11Checking"
-                      : draft.path
-                        ? "capNeedVideo"
-                        : "capDrop",
-                  )}
-                </p>
-                <small>{t("capOneFile")}</small>
-              </div>
-            )}
-            {draft.mode === "frame" && (
-              <div className="capture-time">
-                <label htmlFor="capture-time">{t("capTime")}</label>
-                <input
-                  id="capture-time"
-                  data-testid="capture-time"
-                  value={time}
-                  disabled={disabled || !previewReady}
-                  onChange={(e) => setTime(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") locate();
-                  }}
-                />
-                <button
-                  type="button"
-                  className="wb-secondary"
-                  data-testid="capture-locate"
-                  disabled={disabled || !previewReady}
-                  onClick={locate}
-                >
-                  {t("capLocate")}
-                </button>
-                <small>{t("capFrameHint")}</small>
-              </div>
+              <>
+                <div className="merge-source-bar">
+                  <div>
+                    <strong title={draft.path}>
+                      {draft.path ? filenameForPath(draft.path) : t("capDrop")}
+                    </strong>
+                    <small>
+                      {validSource
+                        ? `${formatTrimTime(duration)} · ${file?.video?.width || 0} × ${file?.video?.height || 0}`
+                        : t("capOneFile")}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    className="wb-icon-button"
+                    disabled={disabled || reading || !draft.path}
+                    title={t("cReload")}
+                    aria-label={t("cReload")}
+                    onClick={() => setRefresh((v) => v + 1)}
+                  >
+                    <RefreshCw size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="capture-add"
+                    disabled={disabled || reading}
+                    onClick={() => void choose()}
+                  >
+                    <FolderOpen size={15} />
+                    {t(draft.path ? "capReplace" : "cChoose")}
+                  </button>
+                  <SourceRemoveButton
+                    testId="capture-remove-source"
+                    disabled={disabled || adding.current}
+                    onRemove={removeSource}
+                  />
+                </div>
+                {validSource ? (
+                  <TrimPreview
+                    key={`${draft.path}:${refresh}`}
+                    previewOnly={draft.mode === "frame"}
+                    previewErrorKey="capPreviewFailed"
+                    path={draft.path}
+                    hasVideo
+                    duration={duration}
+                    start={draft.start}
+                    end={draft.end}
+                    disabled={disabled}
+                    change={edit}
+                    onPositionChange={setPosition}
+                    onReadyChange={setPreviewReady}
+                    positionRef={positionRef}
+                    seekTo={seekTo}
+                  />
+                ) : (
+                  <div className="merge-empty-preview">
+                    <UploadCloud size={38} />
+                    <p>
+                      {t(
+                        reading
+                          ? "c11Checking"
+                          : draft.path
+                            ? "capNeedVideo"
+                            : "capDrop",
+                      )}
+                    </p>
+                    <small>{t("capOneFile")}</small>
+                  </div>
+                )}
+                {draft.mode === "frame" && (
+                  <div className="capture-time">
+                    <label htmlFor="capture-time">{t("capTime")}</label>
+                    <input
+                      id="capture-time"
+                      data-testid="capture-time"
+                      value={time}
+                      disabled={disabled || !previewReady}
+                      onChange={(e) => setTime(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") locate();
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="wb-secondary"
+                      data-testid="capture-locate"
+                      disabled={disabled || !previewReady}
+                      onClick={locate}
+                    >
+                      {t("capLocate")}
+                    </button>
+                    <small>{t("capFrameHint")}</small>
+                  </div>
+                )}
+              </>
             )}
           </section>
           <aside className="cvt-settings capture-settings">

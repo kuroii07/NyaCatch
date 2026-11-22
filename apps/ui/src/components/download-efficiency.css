@@ -2,9 +2,9 @@
   margin: 12px 0;
   padding: 10px 14px;
   border: 1px solid var(--wb-line);
-  border-radius: 10px;
+  border-radius: var(--nc-r-md);
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   min-width: 0;
 }
 .ef-organization summary {
@@ -30,7 +30,7 @@
   width: 100%;
   padding: 7px;
   border: 1px solid var(--wb-line);
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
 }
@@ -45,7 +45,7 @@
 }
 .ef-draft-notice {
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   margin: 8px 0;
 }
 .ef-duplicates {

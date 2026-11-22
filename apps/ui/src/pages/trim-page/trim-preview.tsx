@@ -8,6 +8,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { NcProgress } from "@/components/nc-progress";
 import { useMediaPreview } from "./use-media-preview";
 import { formatTrimTime, markTrimPoint, parseTrimTime } from "./trim-model";
 
@@ -241,10 +242,14 @@ export default function TrimPreview(props: Props) {
               { progress: compatiblePreview.state?.progress || 0 },
             )}
           </span>
-          <progress
-            max={100}
-            value={compatiblePreview.state?.progress || 0}
-            aria-label={t("pcGenerate")}
+          <NcProgress
+            value={compatiblePreview.state?.progress}
+            state={
+              compatiblePreview.state?.status === "running"
+                ? "active"
+                : "paused"
+            }
+            label={t("pcGenerate")}
           />
           <button
             type="button"

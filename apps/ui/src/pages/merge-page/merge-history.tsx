@@ -12,6 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { ConversionResponse } from "@mediago/shared-common";
 import { usePlatform } from "@/hooks/use-platform";
+import { NcProgress } from "@/components/nc-progress";
 import { useAudioHandoff } from "../converter-page/use-audio-handoff";
 import { formatTrimTime } from "../trim-page/trim-model";
 import { filenameForPath } from "../converter-page/converter-model";
@@ -207,9 +208,11 @@ export default function MergeHistory({
                 )}
                 {row.error && <span className="cvt-error">{row.error}</span>}
                 {row.status === "converting" && (
-                  <div className="cvt-progress">
-                    <span style={{ width: `${row.progress || 0}%` }} />
-                  </div>
+                  <NcProgress
+                    className="cvt-progress"
+                    value={row.progress}
+                    label={row.name || filenameForPath(row.path)}
+                  />
                 )}
                 {row.status === "converting" &&
                   !!row.options?.compress?.targetBytes && (

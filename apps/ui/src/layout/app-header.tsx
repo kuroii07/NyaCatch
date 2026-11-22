@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { App, Dropdown, Modal, Tooltip } from "antd";
+import { App, Dropdown, Modal } from "antd";
+import { Tooltip } from "@/components/tooltip";
 import { CircleHelp, Languages } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AppLanguage, LANGUAGE_OPTIONS } from "@mediago/shared-common";
@@ -8,6 +9,7 @@ import { useAppStore } from "@/store/app";
 import { usePlatform } from "@/hooks/use-platform";
 import { cn } from "@/utils";
 import brandIcon from "@/assets/brand/nyacatch.svg";
+import { BrandLogo } from "@/components/brand-marks";
 
 export function AppHeader({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
@@ -33,14 +35,11 @@ export function AppHeader({ className }: { className?: string }) {
   return (
     <header className={cn("wb-app-header", className)}>
       <div className="wb-brand">
-        <img
+        <BrandLogo
           className="wb-brand-icon"
           data-testid="brand-icon"
-          src={brandIcon}
-          alt=""
           width={32}
           height={32}
-          draggable={false}
         />
         <strong>{t("wbBrand")}</strong>
         <small>{t("wbBuild")}</small>

@@ -15,10 +15,10 @@
   gap: 9px;
   padding: 9px 13px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   background: transparent;
   color: var(--wb-muted);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   font-weight: 600;
 }
 .p-view-tabs button:hover,
@@ -30,7 +30,7 @@
   border-color: var(--wb-line);
 }
 .p-view-tabs button span {
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   font-variant-numeric: tabular-nums;
   color: var(--wb-muted);
 }
@@ -59,7 +59,7 @@
   align-items: center;
   gap: 7px;
   padding: 8px 11px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .p-parser-dialog form {
   min-width: 0;
@@ -67,7 +67,7 @@
 .p-parser-intro,
 .p-parser-note {
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
@@ -75,7 +75,7 @@
   display: block;
   margin: 16px 0 8px;
   color: var(--wb-ink);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-weight: 600;
 }
 .p-parser-dialog textarea {
@@ -85,10 +85,10 @@
   max-height: 240px;
   padding: 11px 12px;
   border: 1px solid var(--wb-line);
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   line-height: 1.6;
 }
 .p-parser-dialog textarea[aria-invalid="true"] {
@@ -96,7 +96,7 @@
 }
 .p-parser-error {
   color: var(--wb-error);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   margin-top: 6px;
 }
 .p-parser-footer {
@@ -109,7 +109,7 @@
 }
 .p-parser-footer > span {
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .p-parser-footer .wb-primary {
   display: inline-flex;
@@ -119,12 +119,12 @@
   white-space: normal;
 }
 .p-engine-intro strong {
-  font-size: 20px;
+  font-size: var(--nc-fs-title);
   color: var(--wb-ink);
 }
 .p-engine-intro span,
 .p-engine-intro p {
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.8;
   color: var(--wb-muted);
 }
@@ -148,7 +148,7 @@
   gap: 12px;
   margin: 16px 0;
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .p-engine-pagination {
   display: flex;
@@ -164,10 +164,10 @@
   min-height: 32px;
   padding: 6px 9px;
   border: 1px solid var(--wb-line);
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
   color: var(--wb-ink);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
 }
 .p-engine-pagination button:hover:not(:disabled) {
@@ -196,7 +196,7 @@
   min-height: 78px;
   padding: 12px;
   border: 1px solid var(--wb-line);
-  border-radius: 11px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
 }
 .p-engine-row.is-broken {
@@ -212,14 +212,14 @@
   display: block;
 }
 .p-engine-name strong {
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   color: var(--wb-ink);
   line-height: 1.5;
 }
 .p-engine-name span {
   margin-top: 4px;
   color: var(--wb-muted);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.6;
 }
 .p-engine-row > button {
@@ -234,10 +234,10 @@
   min-height: 32px;
   padding: 6px 8px;
   border: 1px solid var(--wb-line);
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
   color: var(--wb-ink);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
 }
 .p-engine-website svg {
@@ -258,7 +258,7 @@
   flex-shrink: 0;
   max-width: 40%;
   color: var(--wb-muted);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.6;
 }
 .p-website-menu .ant-dropdown-menu {
@@ -282,7 +282,7 @@
 .p-filter-panel {
   padding: 16px 18px;
   border: 1px solid var(--wb-line);
-  border-radius: 14px;
+  border-radius: var(--nc-r-lg);
   background: var(--wb-surface);
 }
 .p-search-row {
@@ -299,7 +299,7 @@
   min-width: 0;
   padding: 9px 12px;
   border: 1px solid var(--wb-line);
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   color: var(--wb-muted);
   background: var(--wb-control);
 }
@@ -310,7 +310,7 @@
   outline: none;
   background: transparent;
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .p-search input::placeholder {
   color: var(--wb-muted);
@@ -320,16 +320,16 @@
   align-items: center;
   gap: 10px;
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .p-status-select select {
   max-width: 185px;
   padding: 9px 12px;
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   border: 1px solid var(--wb-line);
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .p-filter-row {
   display: flex;
@@ -343,16 +343,16 @@
 .p-filter-label {
   min-width: 64px;
   margin-right: 4px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
 }
 .p-filter-row button {
   padding: 6px 13px;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: transparent;
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .p-filter-row button:hover {
   background: var(--wb-soft);
@@ -371,7 +371,7 @@
   gap: 10px;
   padding: 14px 2px 4px;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .p-result-row p {
   flex: 1;
@@ -390,7 +390,7 @@
   background: transparent;
   border: 0;
   color: var(--wb-ink);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .p-group {
   margin-top: 16px;
@@ -401,7 +401,7 @@
   gap: 8px;
   margin: 0 0 10px;
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   font-weight: 650;
 }
 .p-group > h2 span {
@@ -412,7 +412,7 @@
   border-radius: 5px;
   background: var(--wb-soft);
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .p-grid {
   display: grid;
@@ -426,7 +426,7 @@
   min-width: 0;
   padding: 14px;
   border: 1px solid var(--wb-line);
-  border-radius: 11px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
 }
 .p-card.is-planned {
@@ -466,7 +466,7 @@
 .p-platform-name > span {
   display: block;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   overflow-wrap: anywhere;
 }
 .p-status {
@@ -476,10 +476,10 @@
   gap: 5px;
   max-width: 45%;
   padding: 5px 7px;
-  border-radius: 6px;
+  border-radius: var(--nc-r-sm);
   background: var(--wb-soft);
   color: var(--wb-ink);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
 }
 .p-status svg {
@@ -505,7 +505,7 @@
   border: 1px solid var(--wb-line);
   border-radius: 5px;
   color: var(--wb-muted);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
 }
 .p-capabilities .p-region {
   border-color: transparent;
@@ -514,7 +514,7 @@
 }
 .p-evidence {
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.75;
   color: var(--wb-ink);
   overflow-wrap: anywhere;
@@ -524,7 +524,7 @@
   gap: 7px;
   margin: 0;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.75;
 }
 .p-details > div {
@@ -544,7 +544,7 @@
 .p-checked {
   margin: 10px 0 0;
   color: var(--wb-muted);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
 }
 .p-checked time {
   margin-left: 5px;
@@ -565,10 +565,10 @@
   min-height: 34px;
   padding: 6px 8px;
   border: 1px solid var(--wb-line);
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
   color: var(--wb-ink);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   font-weight: 550;
   line-height: 1.5;
   white-space: normal;
@@ -601,7 +601,7 @@
   gap: 8px;
   padding-top: 8px;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.5;
   cursor: pointer;
   list-style: none;
@@ -642,7 +642,7 @@
 }
 .p-empty p {
   margin: 0 0 5px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 @media (max-width: 1120px) {
   .p-grid {
@@ -671,4 +671,8 @@
   .p-filter-label {
     flex-basis: 100%;
   }
+}
+
+.p-card details {
+  margin-bottom: 4px;
 }

@@ -6,21 +6,22 @@ import {
 } from "../../components/save-organization";
 import { useDownloadDuplicates } from "../../hooks/use-download-duplicates";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { App, Tooltip } from "antd";
+import { App } from "antd";
+import { Tooltip } from "@/components/tooltip";
 import {
   ArrowRight,
-  Check,
   Film,
   FolderOpen,
   Image as ImageIcon,
   Link2,
   LoaderCircle,
   Music2,
+  RotateCcw,
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { DownloadType } from "@mediago/shared-common";
+import { DownloadType, type Video } from "@mediago/shared-common";
 import { useSWRConfig } from "swr";
 import DownloadForm, { type DownloadFormRef } from "@/components/download-form";
 import {
@@ -38,11 +39,25 @@ import {
 import { setConfigValue } from "@/api/config";
 import { useAppStore } from "@/store/app";
 import { usePlatform } from "@/hooks/use-platform";
+import { SlidingIndicator } from "@/components/sliding-indicator";
+import { NcProgress } from "@/components/nc-progress";
+import { BrandCheck } from "@/components/brand-marks";
+import { useParseMotion } from "@/hooks/use-parse-motion";
+import { useConfirmFlight } from "@/hooks/use-confirm-flight";
 import { useUrlInvoke } from "@/hooks/use-url-invoke";
-import { isWeb } from "@/utils";
+import { http, isWeb } from "@/utils";
 import { RecentTasks } from "./recent-tasks";
 import { MediaPlayer } from "./media-player";
-import { mediaParseErrorKey } from "./media-error";
+import {
+  mediaParseErrorKey,
+  mediaParseAttempts,
+  mediaAttemptErrorKey,
+} from "./media-error";
+import {
+  MediaParseError,
+  type MediaParseStage,
+  type MediaParseFailure,
+} from "../../utils/media-parse";
 import { readPlatformParseIntent } from "../platforms-page/parser-entry-model";
 import {
   audioChoice,
@@ -112,6 +127,9 @@ export default function WorkbenchPage() {
     preview?.resolver || "",
   );
   const [parsing, setParsing] = useState(false);
+  const parseBusy = useRef(false);
+  const [parseStage, setParseStage] = useState<MediaParseStage>("primary");
+  const [parseFailure, setParseFailure] = useState<MediaParseFailure>();
   const [adding, setAdding] = useState(false);
   const busy = useRef(false);
   const [mode, setMode] = useState<OutputMode>(preference.current.mode);
@@ -123,7 +141,9 @@ export default function WorkbenchPage() {
     preference.current.bitrate,
   );
   const [stem, setStem] = useState("");
-  const [submitted, setSubmitted] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState<
+    Record<string, "queued" | "started" | "start-unconfirmed">
+  >({});
   const [error, setError] = useState("");
   const [detail, setDetail] = useState("");
   const [fallback, setFallback] = useState(false);
@@ -131,6 +151,9 @@ export default function WorkbenchPage() {
   const incomingParse = useRef("");
   const form = useRef<DownloadFormRef>(null);
   const id = useId();
+  const workspace = useRef<HTMLDivElement>(null);
+  const errorElement = useParseMotion(workspace, resolved, error);
+  const confirmFlight = useConfirmFlight();
   useEffect(() => {
     if (location.state?.focusLink) linkInput.current?.focus();
   }, [location.key]);
@@ -176,21 +199,24 @@ export default function WorkbenchPage() {
   function changeURL(value: string) {
     request.current?.abort();
     request.current = null;
+    parseBusy.current = false;
     setURL(value);
     setPreview(null);
     setParsing(false);
-    setSubmitted([]);
+    setSubmitted({});
     setError("");
     setDetail("");
+    setParseFailure(undefined);
     setFallback(false);
   }
   async function parse(inputText = url) {
-    if (busy.current) return;
+    if (busy.current || parseBusy.current) return;
     request.current?.abort();
     setPreview(null);
-    setSubmitted([]);
+    setSubmitted({});
     setError("");
     setDetail("");
+    setParseFailure(undefined);
     setFallback(false);
     const links = extractShareLinks(inputText);
     if (links.length > 1) {
@@ -199,13 +225,15 @@ export default function WorkbenchPage() {
     }
     const input = links[0] || inputText.trim();
     if (!validMediaLink(input)) {
-      setError(t("wbInvalidURL"));
+      setError("wbInvalidURL");
       return;
     }
     setURL(input);
     const controller = new AbortController();
     request.current = controller;
+    parseBusy.current = true;
     setParsing(true);
+    setParseStage("primary");
     try {
       if (autoDiscoverCollection(input)) {
         try {
@@ -228,8 +256,20 @@ export default function WorkbenchPage() {
           message.warning(t("clDiscoveryFailed"));
         }
       }
-      const result = await resolveMedia(input, controller.signal);
-      if (request.current !== controller || controller.signal.aborted) return;
+      const result = await resolveMedia(
+        input,
+        controller.signal,
+        undefined,
+        (stage) => {
+          if (request.current === controller && !controller.signal.aborted)
+            setParseStage(stage);
+        },
+      );
+      if (request.current !== controller || controller.signal.aborted) {
+        if (result.previewSession)
+          void removeMediaPlayback(result.previewSession).catch(() => {});
+        return;
+      }
       const wanted = preference.current.mode;
       const supported =
         wanted === "video"
@@ -257,11 +297,17 @@ export default function WorkbenchPage() {
     } catch (reason) {
       if (!controller.signal.aborted && request.current === controller) {
         const text = reason instanceof Error ? reason.message : "";
-        setError(t(mediaParseErrorKey(text, input)));
+        const failure =
+          reason instanceof MediaParseError ? reason.failure : undefined;
+        setError(mediaParseErrorKey(text, input, failure));
+        setParseFailure(failure);
         setDetail(text);
       }
     } finally {
-      if (request.current === controller) setParsing(false);
+      if (request.current === controller) {
+        parseBusy.current = false;
+        setParsing(false);
+      }
     }
   }
   async function pickFolder() {
@@ -299,17 +345,23 @@ export default function WorkbenchPage() {
     selectedResources,
     organization,
   });
-  const added = submitted.includes(key);
+  const added = submitted[key] !== undefined;
   const submitDisabled =
     !options ||
     adding ||
     added ||
     !local ||
     (resources.length > 0 && selectedResources.length === 0);
-  const submitHint = adding
-    ? t("wbAdding")
-    : added
-      ? t("u11AlreadyAdded")
+  const submitHint = added
+    ? t(
+        submitted[key] === "queued"
+          ? "v4QueueAdded"
+          : submitted[key] === "started"
+            ? "v4DownloadStarted"
+            : "v4StartUnconfirmed",
+      )
+    : adding
+      ? t("wbAdding")
       : parsing
         ? t("wbParsing")
         : !preview
@@ -384,7 +436,8 @@ export default function WorkbenchPage() {
       };
     });
   }
-  async function enqueue(start: boolean) {
+  async function enqueue(start: boolean, origin?: HTMLElement) {
+    const originRect = origin?.getBoundingClientRect();
     const controller = request.current;
     if (
       !preview ||
@@ -411,10 +464,39 @@ export default function WorkbenchPage() {
         controller.signal.aborted
       )
         return;
-      await createDownloadTasks(accepted, start);
-      if (request.current === controller && !controller.signal.aborted)
-        setSubmitted((items) => [...items, key]);
-      message.success(t(start ? "v4DownloadStarted" : "v4QueueAdded"));
+      const created = await createDownloadTasks(accepted, start);
+      if (request.current === controller && !controller.signal.aborted) {
+        if (created.length) confirmFlight(originRect);
+        setSubmitted((items) => ({
+          ...items,
+          [key]: start ? "start-unconfirmed" : "queued",
+        }));
+        if (start) {
+          // Creation succeeds even when the backend's best-effort auto-start fails.
+          // A failed status read must not undo confirmed creation or offer resubmission.
+          const confirmedTasks = await Promise.allSettled(
+            created.map((task) =>
+              http.get<unknown, Video>(`/api/downloads/${task.id}`, {
+                signal: controller.signal,
+                timeout: 5000,
+              }),
+            ),
+          );
+          if (
+            request.current === controller &&
+            !controller.signal.aborted &&
+            confirmedTasks.length > 0 &&
+            confirmedTasks.every(
+              (task) =>
+                task.status === "fulfilled" &&
+                ["pending", "downloading", "success"].includes(
+                  task.value.status,
+                ),
+            )
+          )
+            setSubmitted((items) => ({ ...items, [key]: "started" }));
+        }
+      }
       await mutate(
         (cache) =>
           Array.isArray(cache) &&
@@ -545,49 +627,129 @@ export default function WorkbenchPage() {
           data-testid="parse-link"
           type="submit"
           disabled={parsing || adding || !url.trim()}
+          aria-label={t(parsing ? "wbParsing" : "wbParse")}
         >
-          {parsing ? <LoaderCircle size={17} className="wb-spin" /> : null}
-          {t(parsing ? "wbParsing" : "wbParse")}
-          {!parsing && <ArrowRight size={18} />}
+          <span className="nc-parsing-button-label">
+            <span aria-hidden>{t("wbParse")}</span>
+            {parsing ? (
+              <span className="nc-parse-dots" aria-hidden>
+                <i />
+                <i />
+                <i />
+              </span>
+            ) : (
+              <span>{t("wbParse")}</span>
+            )}
+          </span>
+          <ArrowRight
+            size={18}
+            style={{ visibility: parsing ? "hidden" : undefined }}
+            aria-hidden
+          />
         </button>
       </form>
-      {preview && (
-        <SaveOrganizationControls
-          value={organization}
-          disabled={adding}
-          onChange={(next) => {
-            try {
-              setOrganization(next);
-            } catch {
-              message.error(t("efSaveFailed"));
-            }
-          }}
-          path={(() => {
-            const task = plannedTasks()[0];
-            return task
-              ? task.options.saveDir +
-                  (task.options.saveDir.includes("\\") ? "\\" : "/") +
-                  task.name
-              : undefined;
-          })()}
-        />
+      {parsing && (
+        <div
+          className="mp-parse-status"
+          role="status"
+          aria-live="polite"
+          data-testid="parse-status"
+        >
+          <NcProgress label={t("wbParsing")} />
+          <span>
+            {t(
+              {
+                primary: "xpStagePrimary",
+                inventory: "xpStageInventory",
+                fallback: "xpStageFallback",
+              }[parseStage],
+            )}
+          </span>
+          <button
+            type="button"
+            className="wb-secondary"
+            data-testid="parse-cancel"
+            onClick={() => {
+              const active = request.current;
+              request.current = null;
+              parseBusy.current = false;
+              active?.abort();
+              setParsing(false);
+            }}
+          >
+            {t("cancel")}
+          </button>
+        </div>
       )}
       {error && (
-        <div className="wb-error" role="alert">
-          <strong>{error}</strong>
+        <div
+          ref={errorElement}
+          className="wb-error mp-parse-error"
+          role="alert"
+          data-testid="parse-error"
+        >
+          <div className="mp-error-heading">
+            <strong>{t(error)}</strong>
+            {detail && (
+              <button
+                type="button"
+                className="wb-secondary"
+                data-testid="parse-retry"
+                disabled={parsing || adding}
+                onClick={() => void parse()}
+              >
+                <RotateCcw size={15} aria-hidden />
+                {t("xpRetry")}
+              </button>
+            )}
+          </div>
           {detail && (
             <details>
               <summary>{t("wbDetails")}</summary>
-              <p>{detail}</p>
+              {mediaParseAttempts(detail, parseFailure).length ? (
+                <ol>
+                  {mediaParseAttempts(detail, parseFailure).map((attempt) => (
+                    <li key={attempt.route}>
+                      <strong>
+                        {t(
+                          attempt.route === "fallback"
+                            ? "xpRouteFallback"
+                            : "xpRoutePrimary",
+                        )}{" "}
+                        · {t(mediaAttemptErrorKey(attempt))}
+                      </strong>
+                      <p>{attempt.message}</p>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p>{detail}</p>
+              )}
             </details>
           )}
         </div>
       )}
-      <div className="v4-workspace">
+      <div
+        ref={workspace}
+        className="v4-workspace"
+        data-parsing={parsing}
+        aria-busy={parsing}
+      >
         <section
           className={"v4-source" + (resources.length ? " has-resources" : "")}
           aria-label={t("v4SourcePreview")}
         >
+          {parsing && (
+            <div
+              className="nc-parse-skeleton"
+              aria-hidden="true"
+              data-testid="parse-skeleton-source"
+            >
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+            </div>
+          )}
           <MediaPlayer
             key={`${preview?.url || "empty"}:${preview?.resourceId || ""}:${mode}`}
             preview={preview}
@@ -731,15 +893,29 @@ export default function WorkbenchPage() {
           className="v4-settings"
           aria-labelledby="output-settings-title"
         >
+          {parsing && (
+            <div
+              className="nc-parse-skeleton nc-parse-skeleton--settings"
+              aria-hidden="true"
+              data-testid="parse-skeleton-settings"
+            >
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+              <div className="nc-skeleton-block" />
+            </div>
+          )}
           <div className="v4-panel-heading">
             <h2 id="output-settings-title">{t("v4DownloadSettings")}</h2>
             <span>{t("v4YourChoice")}</span>
           </div>
           <div
-            className="v4-output-tabs"
+            className="v4-output-tabs nc-sliding-tabs"
             role="radiogroup"
             aria-label={t("v4OutputMode")}
           >
+            <SlidingIndicator activeKey={mode} />
             {(preview?.kind === "image"
               ? (["image"] as const)
               : (["video", "audio", "cover"] as const)
@@ -947,6 +1123,27 @@ export default function WorkbenchPage() {
                 </button>
               </Tooltip>
             </label>
+            {preview && (
+              <SaveOrganizationControls
+                value={organization}
+                disabled={adding}
+                onChange={(next) => {
+                  try {
+                    setOrganization(next);
+                  } catch {
+                    message.error(t("efSaveFailed"));
+                  }
+                }}
+                path={(() => {
+                  const task = plannedTasks()[0];
+                  return task
+                    ? task.options.saveDir +
+                        (task.options.saveDir.includes("\\") ? "\\" : "/") +
+                        task.name
+                    : undefined;
+                })()}
+              />
+            )}
           </div>
         </section>
       </div>
@@ -967,59 +1164,69 @@ export default function WorkbenchPage() {
                 : t("v4ReadyToParse")}
           </strong>
           <span
-            className="v4-submit-hint"
+            className={"v4-submit-hint" + (added ? " v4-submit-success" : "")}
             id={`${id}-submit-hint`}
             data-testid="download-submit-hint"
             role="status"
             aria-live="polite"
           >
+            {added && (
+              <BrandCheck width={16} height={16} data-draw="true" aria-hidden />
+            )}{" "}
             {submitHint}
           </span>
         </div>
         <div className="v4-submit-actions">
-          <Tooltip title={submitDisabled ? submitHint : undefined}>
-            <span className="v4-submit-trigger">
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="queue-media"
-                disabled={submitDisabled}
-                aria-describedby={`${id}-submit-hint`}
-                onClick={() => void enqueue(false)}
-              >
-                {t(added ? "wbAdded" : "v4QueueOnly")}
-              </button>
-            </span>
-          </Tooltip>
-          <Tooltip title={submitDisabled ? submitHint : undefined}>
-            <span className="v4-submit-trigger">
-              <button
-                type="button"
-                className="wb-primary"
-                data-testid="enqueue-media"
-                disabled={submitDisabled}
-                aria-describedby={`${id}-submit-hint`}
-                onClick={() => void enqueue(true)}
-              >
-                {adding ? (
-                  <LoaderCircle size={17} className="wb-spin" />
-                ) : added ? (
-                  <Check size={17} />
-                ) : (
-                  <ArrowRight size={18} />
-                )}{" "}
-                {t(
-                  adding
-                    ? "wbAdding"
-                    : added
-                      ? "wbAdded"
-                      : mode === "cover"
-                        ? "v4SaveCover"
-                        : "v4StartDownload",
-                )}
-              </button>
-            </span>
-          </Tooltip>
+          {added ? (
+            <Link className="wb-secondary" to="/queue">
+              {t("wbViewQueue")}
+              <ArrowRight size={18} aria-hidden />
+            </Link>
+          ) : (
+            <>
+              <Tooltip title={submitDisabled ? submitHint : undefined}>
+                <span className="v4-submit-trigger">
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="queue-media"
+                    disabled={submitDisabled}
+                    aria-describedby={`${id}-submit-hint`}
+                    onClick={(event) =>
+                      void enqueue(false, event.currentTarget)
+                    }
+                  >
+                    {t("v4QueueOnly")}
+                  </button>
+                </span>
+              </Tooltip>
+              <Tooltip title={submitDisabled ? submitHint : undefined}>
+                <span className="v4-submit-trigger">
+                  <button
+                    type="button"
+                    className="wb-primary"
+                    data-testid="enqueue-media"
+                    disabled={submitDisabled}
+                    aria-describedby={`${id}-submit-hint`}
+                    onClick={(event) => void enqueue(true, event.currentTarget)}
+                  >
+                    {adding ? (
+                      <LoaderCircle size={17} className="wb-spin" />
+                    ) : (
+                      <ArrowRight size={18} />
+                    )}{" "}
+                    {t(
+                      adding
+                        ? "wbAdding"
+                        : mode === "cover"
+                          ? "v4SaveCover"
+                          : "v4StartDownload",
+                    )}
+                  </button>
+                </span>
+              </Tooltip>
+            </>
+          )}
         </div>
       </div>
       <RecentTasks />

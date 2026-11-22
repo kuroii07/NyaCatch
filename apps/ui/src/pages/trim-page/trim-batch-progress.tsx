@@ -3,6 +3,7 @@ import { FolderOpen, History, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getConversion } from "@/api/conversion";
 import { usePlatform } from "@/hooks/use-platform";
+import { NcProgress } from "@/components/nc-progress";
 
 export default function TrimBatchProgress({
   ids,
@@ -112,16 +113,20 @@ export default function TrimBatchProgress({
           {missing > 0 && ` · ${t("trMissingTasks", { count: missing })}`}
         </span>
         {data && !error && (
-          <div
+          <NcProgress
             className="cvt-progress"
-            role="progressbar"
-            aria-label={t(progressKey)}
-            aria-valuenow={percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <span style={{ width: `${percent}%` }} />
-          </div>
+            value={percent}
+            state={
+              done === ids.length
+                ? "complete"
+                : running || queued
+                  ? "active"
+                  : failed
+                    ? "failed"
+                    : "paused"
+            }
+            label={t(progressKey)}
+          />
         )}
       </div>
       {(error || missing > 0) && (

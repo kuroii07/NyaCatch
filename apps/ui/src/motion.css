@@ -1,0 +1,150 @@
+/*
+ * NyaCatch motion tokens (0.26.0).
+ * Only transform/opacity/colour animate here, so presses never trigger layout.
+ * The reduced-motion branch keeps the 0.11.1 contract: no global animation:none,
+ * movement is removed and only short colour/opacity changes remain.
+ */
+:root {
+  --nc-dur-press: 90ms;
+  --nc-dur-fast: 140ms;
+  --nc-dur-base: 220ms;
+  --nc-dur-slow: 360ms;
+  --nc-dur-reduced: 120ms;
+  --nc-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* "Pounce": about 8% overshoot on release. */
+  --nc-ease-pounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* "Settle": lands slightly past the target, then rests. */
+  --nc-ease-settle: linear(0, 0.55 18%, 1.06 42%, 0.98 62%, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .media-app .wb-sidebar {
+    transition:
+      flex-basis var(--nc-dur-base) var(--nc-ease-out),
+      width var(--nc-dur-base) var(--nc-ease-out);
+  }
+  .media-app .wb-nav-label {
+    transition:
+      opacity var(--nc-dur-fast) var(--nc-ease-out),
+      transform var(--nc-dur-base) var(--nc-ease-out);
+  }
+  /* An atomic layout change keeps the separately composited native page aligned. */
+  .media-app[data-native-route="true"] .wb-sidebar,
+  .media-app[data-native-route="true"] .wb-nav-label {
+    transition: none;
+  }
+  .media-app
+    :is(
+      .wb-primary,
+      .wb-secondary,
+      .wb-icon-button,
+      .wb-tool-icon,
+      .wb-solid-primary
+    ) {
+    transition:
+      background-color var(--nc-dur-fast) var(--nc-ease-out),
+      border-color var(--nc-dur-fast) var(--nc-ease-out),
+      color var(--nc-dur-fast) var(--nc-ease-out),
+      transform var(--nc-dur-base) var(--nc-ease-pounce);
+  }
+  .media-app
+    :is(.wb-primary, .wb-secondary, .wb-solid-primary):hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  /* Press: quick compress, then the pounce curve above handles the rebound. */
+  .media-app :is(.wb-primary, .wb-solid-primary):active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: var(--nc-dur-press);
+    transition-timing-function: var(--nc-ease-out);
+  }
+  .media-app
+    :is(.wb-secondary, .wb-icon-button, .wb-tool-icon):active:not(:disabled) {
+    transform: scale(0.95);
+    transition-duration: var(--nc-dur-press);
+    transition-timing-function: var(--nc-ease-out);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .media-app .ant-switch .ant-switch-handle {
+    transition: inset-inline-start var(--nc-dur-base) var(--nc-ease-pounce);
+  }
+  .media-app .ant-switch-checked .ant-switch-handle::before {
+    animation: nc-switch-land var(--nc-dur-base) var(--nc-ease-out);
+  }
+  .media-app input:is([type="checkbox"], [type="radio"]) {
+    transition: transform var(--nc-dur-press) var(--nc-ease-out);
+  }
+  .media-app input:is([type="checkbox"], [type="radio"]):active:not(:disabled) {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes nc-switch-land {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  55% {
+    transform: scaleX(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Decorate only inner surfaces; rc-motion still owns enter/leave and removal. */
+  .nc-motion-tooltip:is(
+      .ant-zoom-big-fast-enter-active,
+      .ant-zoom-big-fast-appear-active
+    )
+    :is(.ant-tooltip-container, .ant-tooltip-inner) {
+    animation: nc-tooltip-enter var(--nc-dur-fast) var(--nc-ease-out);
+  }
+  :is(.ant-message-move-up-enter-active, .ant-message-move-up-appear-active)
+    .nc-motion-message
+    .ant-message-notice-content,
+  .nc-motion-message:is(
+      .ant-message-move-up-enter-active,
+      .ant-message-move-up-appear-active
+    )
+    .ant-message-notice-content {
+    transform-origin: 0 0;
+    animation: nc-message-enter var(--nc-dur-base) var(--nc-ease-pounce);
+  }
+}
+@keyframes nc-tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes nc-message-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-app
+    :is(
+      .wb-primary,
+      .wb-secondary,
+      .wb-icon-button,
+      .wb-tool-icon,
+      .wb-solid-primary
+    ) {
+    transition:
+      opacity var(--nc-dur-reduced) ease-out,
+      color var(--nc-dur-reduced) ease-out,
+      background-color var(--nc-dur-reduced) ease-out,
+      border-color var(--nc-dur-reduced) ease-out;
+  }
+}

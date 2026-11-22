@@ -29,6 +29,10 @@ export type ThemeColors = {
   disabledText: string;
   focus: string;
   error: string;
+  success: string;
+  warning: string;
+  info: string;
+  raised: string;
 };
 
 type Palette = {
@@ -119,6 +123,10 @@ export function getThemeTokens(id: ThemeId, dark: boolean): ThemeColors {
     disabledText: dark ? "#a8b0bd" : "#717985",
     focus: dark ? p.accent : p.strong,
     error: dark ? "#f29a91" : "#b93931",
+    success: dark ? "#8dcdb4" : "#28765d",
+    warning: dark ? "#e2bf79" : "#875d13",
+    info: dark ? "#9ec5ec" : "#366c9d",
+    raised: dark ? `color-mix(in srgb, ${surface} 90%, white)` : surface,
   };
 }
 

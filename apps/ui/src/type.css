@@ -1,0 +1,38 @@
+:root {
+  --nc-fs-caption: 12px;
+  --nc-fs-body: 13px;
+  --nc-fs-body-lg: 14px;
+  --nc-fs-section: 16px;
+  --nc-fs-title: 20px;
+  --nc-fs-display: 28px;
+  --nc-r-sm: 6px;
+  --nc-r-md: 10px;
+  --nc-r-lg: 16px;
+  --nc-r-pill: 999px;
+  --nc-success: var(--wb-success, #28765d);
+  --nc-warning: var(--wb-warning, #875d13);
+  --nc-error: var(--wb-error);
+  --nc-info: var(--wb-info, #366c9d);
+  --nc-success-soft: color-mix(
+    in srgb,
+    var(--nc-success) 12%,
+    var(--wb-surface)
+  );
+  --nc-warning-soft: color-mix(
+    in srgb,
+    var(--nc-warning) 12%,
+    var(--wb-surface)
+  );
+  --nc-error-soft: color-mix(in srgb, var(--nc-error) 12%, var(--wb-surface));
+  --nc-info-soft: color-mix(in srgb, var(--nc-info) 12%, var(--wb-surface));
+}
+
+.media-app {
+  font-size: var(--nc-fs-body);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.media-app :is(h1, h2, h3) {
+  line-height: 1.25;
+}

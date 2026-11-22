@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
-import { App, Tooltip } from "antd";
+import { App } from "antd";
+import { Tooltip } from "@/components/tooltip";
 import {
   AudioLines,
   Headphones,
@@ -18,7 +19,6 @@ import {
   Square,
   Trash2,
   UploadCloud,
-  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSWRConfig } from "swr";
@@ -26,6 +26,12 @@ import type { Conversion, LocalFileCheck } from "@mediago/shared-common";
 import { getConversions, getConversionsKey } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import { SlidingIndicator } from "@/components/sliding-indicator";
+import { NcProgress } from "@/components/nc-progress";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useConverterWorkspace } from "@/store/converter-workspace";
 import {
   appendConverterDraft,
@@ -140,6 +146,8 @@ export default function ConverterPage() {
     inspectedFiles.find(
       (file) => pending.includes(file.path) && !audioInputIssue(file, false),
     );
+  const sourcePath =
+    mode === "audio" && previewFile ? previewFile.path : pending[0];
   const selection = settings[mode];
   const folderMissing =
     selection.customDirectory && !selection.directory.trim();
@@ -449,6 +457,15 @@ export default function ConverterPage() {
     }
   }
   function removeDraft(path?: string) {
+    const store = useConverterWorkspace.getState();
+    if (
+      busy ||
+      submitting.current ||
+      store.submitting ||
+      store.workspace.mode !== mode ||
+      store.workspace.submission !== "idle"
+    )
+      return;
     updateWorkspace((current) => ({
       ...current,
       drafts: {
@@ -517,13 +534,11 @@ export default function ConverterPage() {
             </span>
           )}
           {item.status === "converting" && (
-            <div className="cvt-progress">
-              <span
-                style={{
-                  width: `${Math.max(0, Math.min(100, item.progress || 0))}%`,
-                }}
-              />
-            </div>
+            <NcProgress
+              className="cvt-progress"
+              value={item.progress}
+              label={item.name || filenameForPath(item.path)}
+            />
           )}
         </div>
         <span className={`cvt-status is-${item.status}`}>
@@ -605,7 +620,12 @@ export default function ConverterPage() {
         </span>
       </header>
       <div className="cvt-workspace">
-        <div className="cvt-tabs" role="tablist" aria-label={t("converter")}>
+        <div
+          className="cvt-tabs nc-sliding-tabs"
+          role="tablist"
+          aria-label={t("converter")}
+        >
+          <SlidingIndicator activeKey={mode} variant="underline" />
           {modes.map((item) => {
             const Icon = modeIcons[item];
             return (
@@ -630,7 +650,7 @@ export default function ConverterPage() {
         <div className="cvt-body">
           <section className="cvt-left" aria-label={t("cFiles")}>
             <div
-              className={`cvt-drop${dragging ? " is-dragging" : ""}`}
+              className={`cvt-drop${!pending.length ? " nc-source-empty-host" : ""}${dragging ? " is-dragging" : ""}`}
               data-testid="converter-dropzone"
               onDragEnter={(event) => {
                 event.preventDefault();
@@ -650,22 +670,45 @@ export default function ConverterPage() {
               }}
               onDrop={(event) => void dropFiles(event)}
             >
-              <span className="cvt-drop-icon">
-                <UploadCloud size={21} />
-              </span>
-              <h2>{t(dropKeys[mode])}</h2>
-              <p>{t("cDropHint")}</p>
-              <button
-                className="wb-secondary cvt-choose"
-                data-testid="converter-choose"
-                type="button"
-                disabled={busy || uncertain}
-                onClick={() => void chooseFiles()}
-              >
-                <Plus size={15} />
-                {t("cChoose")}
-              </button>
-              <small>{t(typeKeys[mode])}</small>
+              {!pending.length ? (
+                <MediaSourceEmpty
+                  title={t(dropKeys[mode])}
+                  detail={t(typeKeys[mode])}
+                  onChoose={() => void chooseFiles()}
+                  disabled={busy || uncertain}
+                  chooseTestId="converter-choose"
+                />
+              ) : (
+                <>
+                  <span className="cvt-drop-icon">
+                    <UploadCloud size={21} />
+                  </span>
+                  <h2 title={sourcePath}>
+                    {filenameForPath(sourcePath || "")}
+                  </h2>
+                  <p>{t("cDropHint")}</p>
+                  <div className="cvt-source-actions">
+                    <button
+                      className="wb-secondary cvt-choose"
+                      data-testid="converter-choose"
+                      type="button"
+                      disabled={busy || uncertain}
+                      onClick={() => void chooseFiles()}
+                    >
+                      <Plus size={15} />
+                      {t("cChoose")}
+                    </button>
+                    <SourceRemoveButton
+                      disabled={busy || uncertain}
+                      onRemove={() => {
+                        if (sourcePath) removeDraft(sourcePath);
+                      }}
+                      testId="converter-remove-source"
+                    />
+                  </div>
+                  <small>{t(typeKeys[mode])}</small>
+                </>
+              )}
             </div>
             {mode === "audio" &&
               previewFile?.media &&
@@ -674,9 +717,16 @@ export default function ConverterPage() {
                   className="audio-source-preview"
                   data-testid="audio-source-preview"
                 >
-                  <strong title={previewFile.path}>
-                    {t("axPreview")} · {filenameForPath(previewFile.path)}
-                  </strong>
+                  <div className="cvt-source-preview-heading">
+                    <strong title={previewFile.path}>
+                      {t("axPreview")} · {filenameForPath(previewFile.path)}
+                    </strong>
+                    <SourceRemoveButton
+                      disabled={busy || uncertain}
+                      onRemove={() => removeDraft(previewFile.path)}
+                      testId="converter-remove-preview-source"
+                    />
+                  </div>
                   <TrimPreview
                     key={previewFile.path}
                     previewOnly
@@ -691,32 +741,38 @@ export default function ConverterPage() {
                   />
                 </div>
               )}
-            <div className="cvt-list-heading">
-              <div>
-                <strong>{t("cFiles")}</strong>
-                <span>{pending.length + (data?.total || 0)}</span>
+            {(pending.length > 0 || items.length > 0 || isLoading || error) && (
+              <div className="cvt-list-heading">
+                <div>
+                  <strong>{t("cFiles")}</strong>
+                  <span>{pending.length + (data?.total || 0)}</span>
+                </div>
+                {pending.length > 0 && (
+                  <button
+                    type="button"
+                    disabled={busy || uncertain}
+                    onClick={() => removeDraft()}
+                  >
+                    {t("cClear")}
+                  </button>
+                )}
               </div>
-              <button
-                type="button"
-                disabled={!pending.length || busy || uncertain}
-                onClick={() => removeDraft()}
-              >
-                {t("cClear")}
-              </button>
-            </div>
-            <div className="cvt-list-caption">
-              <span>{t("cListHint")}</span>
-              <span>{t("cDraftCount", { count: pending.length })}</span>
-              <button
-                type="button"
-                disabled={!pending.length || busy || checkingFiles}
-                onClick={() => setFileCheck((value) => value + 1)}
-                data-testid="converter-check-files"
-              >
-                <RefreshCw size={13} />
-                {t("c11CheckFiles")}
-              </button>
-            </div>
+            )}
+            {pending.length > 0 && (
+              <div className="cvt-list-caption">
+                <span>{t("cListHint")}</span>
+                <span>{t("cDraftCount", { count: pending.length })}</span>
+                <button
+                  type="button"
+                  disabled={!pending.length || busy || checkingFiles}
+                  onClick={() => setFileCheck((value) => value + 1)}
+                  data-testid="converter-check-files"
+                >
+                  <RefreshCw size={13} />
+                  {t("c11CheckFiles")}
+                </button>
+              </div>
+            )}
             {storageError && (
               <p className="cvt-error" role="alert">
                 {t("c11StorageError")}
@@ -830,15 +886,11 @@ export default function ConverterPage() {
                         <Headphones size={16} />
                       </button>
                     )}
-                    <Tooltip title={t("cRemoveDraft")}>
-                      <button
-                        disabled={busy || uncertain}
-                        aria-label={t("cRemoveDraft")}
-                        onClick={() => removeDraft(path)}
-                      >
-                        <X size={16} />
-                      </button>
-                    </Tooltip>
+                    <SourceRemoveButton
+                      disabled={busy || uncertain}
+                      onRemove={() => removeDraft(path)}
+                      testId="converter-remove-draft"
+                    />
                   </div>
                 </div>
               ))}
@@ -855,13 +907,6 @@ export default function ConverterPage() {
                 </div>
               )}
               {!isLoading && !error && items.map(renderRecord)}
-              {!isLoading && !error && !pending.length && !items.length && (
-                <div className="cvt-empty">
-                  <FileIcon size={26} />
-                  <strong>{t("cNoFiles")}</strong>
-                  <span>{t("cEmptyHint")}</span>
-                </div>
-              )}
             </div>
             {pages > 1 && (
               <div className="cvt-pagination">

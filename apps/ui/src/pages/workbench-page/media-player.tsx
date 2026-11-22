@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Film, LoaderCircle, Music2, Play, RotateCcw, X } from "lucide-react";
+import { LoaderCircle, Music2, Play, RotateCcw, X } from "lucide-react";
+import brandIcon from "@/assets/brand/nyacatch.svg";
 import { useTranslation } from "react-i18next";
 import {
   createMediaPlayback,
@@ -291,7 +292,7 @@ export function MediaPlayer({
             ) : mode === "audio" ? (
               <Music2 size={40} strokeWidth={1.4} />
             ) : (
-              <Film size={40} strokeWidth={1.4} />
+              <img className="v4-placeholder-brand" src={brandIcon} alt="" />
             )}
             <span>
               {t(

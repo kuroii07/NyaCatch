@@ -65,6 +65,7 @@ export const ja: Record<keyof typeof en, string> = {
   pleaseEnterProxy:
     "完全なアドレスを入力してください（例：http://127.0.0.1:8000）",
   proxySetting: "プロキシ",
+  proxyAddress: "プロキシアドレス",
   pleaseEnterProxyFirst: "先にプロキシのアドレスを入力してください",
   dockerUrl: "Docker URL",
   pleaseEnterDockerUrl: "Docker の URL を入力してください",
@@ -96,8 +97,8 @@ export const ja: Record<keyof typeof en, string> = {
   currentVersion: "バージョン",
   selectFolder: "フォルダーを選択",
   selectFile: "ファイルを選択",
-  proxySwitch: "プロキシを使用",
-  downloadProxySwitch: "ダウンロードにプロキシを使用",
+  proxySwitch: "このプロキシを使用",
+  downloadProxySwitch: "ダウンロードにプロキシを使用（旧設定）",
   proxyDescription:
     "プロキシは内蔵ブラウザーとダウンロードの両方に適用されます",
   useImmersiveSniffing: "拡張機能でメディアを検出",

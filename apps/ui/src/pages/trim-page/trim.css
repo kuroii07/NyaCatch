@@ -12,7 +12,7 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 7px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-segments-heading strong span {
   color: var(--wb-muted);
@@ -21,7 +21,7 @@
 }
 .trim-segments-heading button {
   padding: 5px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-segment-list {
   max-height: 132px;
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  border-radius: 6px;
+  border-radius: var(--nc-r-sm);
 }
 .trim-segment.is-active {
   background: var(--wb-soft);
@@ -59,12 +59,12 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-segment small {
   color: var(--wb-muted);
   font-variant-numeric: tabular-nums;
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   overflow-wrap: anywhere;
 }
 .trim-segment small.cvt-error {
@@ -90,8 +90,8 @@
   padding: 9px 12px;
   margin-bottom: 12px;
   background: var(--wb-soft);
-  border-radius: 8px;
-  font-size: 11px;
+  border-radius: var(--nc-r-md);
+  font-size: var(--nc-fs-caption);
 }
 .trim-batch-summary {
   flex: 1;
@@ -107,18 +107,18 @@
 }
 .trim-batch-progress button.wb-secondary {
   padding: 6px 9px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-drop {
   min-height: 160px;
 }
-.trim-drop h2,
-.trim-drop p {
+.trim-drop > h2,
+.trim-drop > p {
   max-width: 100%;
   overflow-wrap: anywhere;
 }
-.trim-drop h2,
-.trim-drop p {
+.trim-drop > h2,
+.trim-drop > p {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -142,7 +142,7 @@
   justify-content: space-between;
   padding: 16px 0 8px;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-range-preview strong {
   color: var(--wb-ink);
@@ -170,7 +170,7 @@
 }
 .trim-history-toggle {
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-history-toggle > span,
 .trim-history-title > span {
@@ -179,7 +179,7 @@
   border-radius: 5px;
   background: var(--wb-soft);
   color: var(--wb-ink);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   text-align: center;
 }
 .trim-history-content {
@@ -220,10 +220,10 @@
   min-width: 0;
   padding: 10px 8px;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-variant-numeric: tabular-nums;
 }
 .trim-time-fields input[aria-invalid="true"] {
@@ -232,7 +232,7 @@
 .trim-hint {
   display: block;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.6;
   margin: 8px 0;
   overflow-wrap: anywhere;
@@ -246,7 +246,7 @@
   margin: 12px 0 24px;
 }
 .trim-shortcuts button {
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   padding: 5px 8px;
 }
 .trim-page .cvt-actions button {
@@ -285,7 +285,7 @@
 }
 .trim-drop.has-media .trim-source-actions .wb-secondary {
   padding: 6px 8px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-preview {
   display: flex;
@@ -296,13 +296,13 @@
   min-width: 0;
   width: 100%;
   margin-top: 6px;
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
 }
 .trim-player {
   flex: 1;
   min-height: 160px;
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   overflow: hidden;
   background: #17191d;
   color: #f5f5f5;
@@ -335,7 +335,7 @@
   display: block;
   padding: 30px 12px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-transport,
 .trim-marker-actions,
@@ -351,31 +351,31 @@
   margin-top: 10px;
 }
 .trim-playhead {
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-variant-numeric: tabular-nums;
   color: var(--wb-ink);
 }
 .trim-playhead > span {
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-marker-actions .wb-secondary {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   padding: 5px 8px;
 }
 .trim-marker-actions kbd {
   color: var(--wb-muted);
   font: inherit;
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-selection-caption {
   flex: none;
   justify-content: space-between;
   margin-top: 12px;
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
 }
 .trim-selection-caption button {
@@ -387,7 +387,7 @@
   border: 0;
   background: transparent;
   color: var(--wb-ink);
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   font-variant-numeric: tabular-nums;
 }
 .trim-selection {
@@ -413,7 +413,7 @@
   gap: 8px;
   margin-top: 7px;
   color: var(--wb-error);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .trim-preview-error span {
   flex: 1;
@@ -431,23 +431,21 @@
   align-items: center;
   gap: 7px;
   margin-top: 7px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   overflow-wrap: anywhere;
 }
-.trim-compatible-progress span {
+.trim-compatible-progress > span {
   flex: 1 1 140px;
 }
-.trim-compatible-progress progress {
+.trim-compatible-progress > .nc-progress {
   flex: 1 1 100px;
   max-width: 180px;
-  height: 6px;
-  accent-color: var(--wb-accent);
 }
 .trim-compatible-info button,
 .trim-compatible-progress button,
 .trim-preview-error .wb-secondary {
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   padding: 6px 9px;
 }
 @media (max-height: 740px) {

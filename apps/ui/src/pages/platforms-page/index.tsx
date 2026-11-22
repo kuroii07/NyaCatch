@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { App, Tooltip } from "antd";
+import { App } from "antd";
+import { Tooltip } from "@/components/tooltip";
 import {
   Link2,
   AudioLines,
@@ -18,6 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePlatform } from "@/hooks/use-platform";
+import { SlidingIndicator } from "@/components/sliding-indicator";
 import { useAppStore } from "@/store/app";
 import { isWeb } from "@/utils";
 import {
@@ -91,7 +93,8 @@ export default function PlatformsPage() {
           <p>{t(showAll ? "pSubtitle" : "pcEvidenceHint")}</p>
         </div>
       </header>
-      <nav className="p-view-tabs" aria-label={t("pTitle")}>
+      <nav className="p-view-tabs nc-sliding-tabs" aria-label={t("pTitle")}>
+        <SlidingIndicator activeKey={showAll} />
         <button
           type="button"
           data-testid="platform-tab-evidence"

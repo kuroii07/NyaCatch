@@ -20,6 +20,11 @@ import type { LocalFileCheck } from "@mediago/shared-common";
 import { getConversions } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import { NcProgress } from "@/components/nc-progress";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useTrimWorkspace } from "@/store/trim-workspace";
 import {
   filenameForPath,
@@ -218,6 +223,12 @@ export default function TrimPage() {
       message.error(t("cDropUnavailable"));
     }
   }
+  function removeSource() {
+    const store = useTrimWorkspace.getState();
+    if (store.busy || store.draft.locked) return;
+    selectionEpoch.current++;
+    change({ path: "", end: "", start: "00:00:00.000" });
+  }
   async function drop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     event.stopPropagation();
@@ -411,77 +422,82 @@ export default function TrimPage() {
         <div className="cvt-body">
           <div className="cvt-left trim-left">
             <div
-              className={`cvt-drop trim-drop${known ? " has-media" : ""}`}
+              className={`cvt-drop trim-drop${known ? " has-media" : ""}${!draft.path ? " nc-source-empty-host" : ""}`}
               data-testid="trim-dropzone"
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => void drop(event)}
             >
-              <span className="cvt-drop-icon">
-                <UploadCloud size={22} />
-              </span>
-              <h2 title={draft.path}>
-                {draft.path ? filenameForPath(draft.path) : t("trDrop")}
-              </h2>
-              <p title={draft.path}>{draft.path || t("trInspectHint")}</p>
-              <div className="trim-source-actions">
-                <button
-                  type="button"
-                  className="wb-secondary"
+              {!draft.path ? (
+                <MediaSourceEmpty
+                  title={t("trDrop")}
+                  detail={t("trTypes")}
+                  onChoose={() => void choose()}
                   disabled={disabled}
-                  data-testid="trim-choose"
-                  onClick={() => void choose()}
-                >
-                  {t("cChoose")}
-                </button>
-                {draft.path && (
-                  <>
-                    <button
-                      type="button"
-                      className="wb-icon-button"
-                      disabled={disabled || reading}
-                      title={t("trRead")}
-                      aria-label={t("trRead")}
-                      data-testid="trim-read"
-                      onClick={() => setRefresh((value) => value + 1)}
-                    >
-                      <RefreshCw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className="wb-icon-button"
-                      disabled={disabled}
-                      title={t("cRemoveDraft")}
-                      aria-label={t("cRemoveDraft")}
-                      onClick={() =>
-                        change({ path: "", end: "", start: "00:00:00.000" })
-                      }
-                    >
-                      <X size={16} />
-                    </button>
-                  </>
-                )}
-              </div>
-              <small data-testid="trim-source-info" role="status">
-                {reading
-                  ? t("c11Checking")
-                  : known
-                    ? `${t("trDuration")} ${formatTrimTime(media.durationMs)} · ${[media.hasVideo && t("trTrackVideo"), media.hasAudio && t("trTrackAudio")].filter(Boolean).join(" / ")}`
-                    : draft.path
-                      ? t("trReadFailed")
-                      : t("trTypes")}
-              </small>
-              {known && (
-                <TrimPreview
-                  key={`${draft.path}-${refresh}`}
-                  path={draft.path}
-                  segmentId={draft.activeId}
-                  hasVideo={media.hasVideo}
-                  duration={media.durationMs}
-                  start={draft.start}
-                  end={draft.end}
-                  disabled={disabled}
-                  change={change}
+                  chooseTestId="trim-choose"
                 />
+              ) : (
+                <>
+                  <span className="cvt-drop-icon">
+                    <UploadCloud size={22} />
+                  </span>
+                  <h2 title={draft.path}>
+                    {draft.path ? filenameForPath(draft.path) : t("trDrop")}
+                  </h2>
+                  <p title={draft.path}>{draft.path || t("trInspectHint")}</p>
+                  <div className="trim-source-actions">
+                    <button
+                      type="button"
+                      className="wb-secondary"
+                      disabled={disabled}
+                      data-testid="trim-choose"
+                      onClick={() => void choose()}
+                    >
+                      {t("cChoose")}
+                    </button>
+                    {draft.path && (
+                      <>
+                        <button
+                          type="button"
+                          className="wb-icon-button"
+                          disabled={disabled || reading}
+                          title={t("trRead")}
+                          aria-label={t("trRead")}
+                          data-testid="trim-read"
+                          onClick={() => setRefresh((value) => value + 1)}
+                        >
+                          <RefreshCw size={16} />
+                        </button>
+                        <SourceRemoveButton
+                          disabled={disabled}
+                          onRemove={removeSource}
+                          testId="trim-remove-source"
+                        />
+                      </>
+                    )}
+                  </div>
+                  <small data-testid="trim-source-info" role="status">
+                    {reading
+                      ? t("c11Checking")
+                      : known
+                        ? `${t("trDuration")} ${formatTrimTime(media.durationMs)} · ${[media.hasVideo && t("trTrackVideo"), media.hasAudio && t("trTrackAudio")].filter(Boolean).join(" / ")}`
+                        : draft.path
+                          ? t("trReadFailed")
+                          : t("trTypes")}
+                  </small>
+                  {known && (
+                    <TrimPreview
+                      key={`${draft.path}-${refresh}`}
+                      path={draft.path}
+                      segmentId={draft.activeId}
+                      hasVideo={media.hasVideo}
+                      duration={media.durationMs}
+                      start={draft.start}
+                      end={draft.end}
+                      disabled={disabled}
+                      change={change}
+                    />
+                  )}
+                </>
               )}
             </div>
             {known && (
@@ -943,13 +959,11 @@ export default function TrimPage() {
                   </span>
                   {row.error && <span className="cvt-error">{row.error}</span>}
                   {row.status === "converting" && (
-                    <div className="cvt-progress">
-                      <span
-                        style={{
-                          width: `${Math.min(100, Math.max(0, row.progress || 0))}%`,
-                        }}
-                      />
-                    </div>
+                    <NcProgress
+                      className="cvt-progress"
+                      value={row.progress}
+                      label={row.name || filenameForPath(row.path)}
+                    />
                   )}
                 </div>
                 <span className={`cvt-status is-${row.status}`}>

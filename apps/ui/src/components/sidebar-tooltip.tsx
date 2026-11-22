@@ -1,4 +1,5 @@
-import { App, Tooltip, theme } from "antd";
+import { App, theme } from "antd";
+import { Tooltip } from "./tooltip";
 import { useMemoizedFn } from "ahooks";
 import {
   cloneElement,
@@ -86,7 +87,7 @@ export function SidebarTooltip({
         .catch(reportError);
     };
     if (immediate) display();
-    else timer.current = setTimeout(display, 100);
+    else timer.current = setTimeout(display, 300);
   });
   useEffect(() => {
     if (native && (hovered.current || focused.current)) show(true);

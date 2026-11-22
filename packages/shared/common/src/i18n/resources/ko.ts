@@ -64,6 +64,7 @@ export const ko: Record<keyof typeof en, string> = {
   browserSetting: "브라우저",
   pleaseEnterProxy: "전체 주소를 입력하세요. 예: http://127.0.0.1:8000",
   proxySetting: "프록시",
+  proxyAddress: "프록시 주소",
   pleaseEnterProxyFirst: "먼저 프록시 주소를 입력하세요",
   dockerUrl: "Docker URL",
   pleaseEnterDockerUrl: "Docker URL을 입력하세요",
@@ -94,8 +95,8 @@ export const ko: Record<keyof typeof en, string> = {
   currentVersion: "버전",
   selectFolder: "폴더 선택",
   selectFile: "파일 선택",
-  proxySwitch: "프록시 사용",
-  downloadProxySwitch: "다운로드에 프록시 사용",
+  proxySwitch: "이 프록시 사용",
+  downloadProxySwitch: "다운로드에 프록시 사용(이전 설정)",
   proxyDescription: "내장 브라우저와 다운로드에 프록시를 적용합니다",
   useImmersiveSniffing: "확장 프로그램에서만 미디어 감지",
   immersiveSniffingDescription:

@@ -4,7 +4,8 @@
   <p>下载素材，整理资源，处理音视频。</p>
   <p>基于 MediaGo 的 Windows 桌面工具，集成链接下载、网页素材提取与本地媒体处理。</p>
   <p>
-    <img src="https://img.shields.io/badge/version-0.25.0-F2CA46?labelColor=242A36" alt="0.25.0" />
+    <img src="https://img.shields.io/badge/source-0.26.0--beta.5-F2CA46?labelColor=242A36" alt="源码 0.26.0-beta.5" />
+    <img src="https://img.shields.io/badge/release-0.25.0-242A36" alt="公开正式版 0.25.0" />
     <img src="https://img.shields.io/badge/platform-Windows_11-242A36" alt="已在 Windows 11 验证" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/source_license-MIT-242A36" alt="源码 MIT 许可证" /></a>
   </p>
@@ -19,7 +20,9 @@
 
 ## 下载与安装
 
-**当前正式版为 `0.25.0`，提供 Windows x64 安装版和免安装版。**
+**当前公开正式版为 `0.25.0`，提供 Windows x64 安装版和免安装版。**
+
+`main` 分支源码已更新至 **`0.26.0-beta.5`**，包含解析反馈、界面与品牌动效、素材移除和空状态统一等更新。该 beta 已完成本机验收，尚未提供公开安装包；以下下载链接仍对应 `0.25.0`。
 
 - [下载安装版](https://github.com/kuroii07/NyaCatch/releases/download/v0.25.0/NyaCatch-0.25.0-windows-x64-setup.exe)：推荐日常使用，支持检查、下载本仓库的正式更新，安装前需确认。
 - [下载免安装 ZIP](https://github.com/kuroii07/NyaCatch/releases/download/v0.25.0/NyaCatch-0.25.0-windows-x64.zip)：完整解压到可写目录后运行 `NyaCatch.exe`，数据保存在程序旁 `data/`，更新需手动下载。
@@ -74,6 +77,15 @@
 </details>
 
 ## 版本更新
+
+- **0.26.0-beta.5 素材入口一致性**：统一媒体工具空状态，预览头补齐移除待处理素材入口，保留原文件、任务历史与草稿锁。[说明](docs/nyacatch/0.26.0.md)
+- **0.26.0-beta.4 品牌与进度**：爪印进度条、解析骨架与三点加载、确认建单飞入、完成/失败反馈及顶栏右耳动效；保留真实任务语义和系统减少动画。[说明](docs/nyacatch/0.26.0.md)
+- **0.26.0-beta.3 切页性能修正**：切页统一为 200ms 淡入，移除导致重复布局的 6px 位移，保留原页面状态与素材网页边界；品牌动效顺延至 beta.4。[说明](docs/nyacatch/0.26.0.md)
+- **0.26.0-beta.2 结构动效**：四类页签滑块、侧栏展开与共享选中块、页面淡入、列表增删/重排和弹层细节；素材页原生网页保持边界同步，减少动画即时生效。[说明](docs/nyacatch/0.26.0.md)
+
+- **0.26.0-beta.1 本机界面优化**：统一字号/圆角与动效 token、按钮按下反馈、侧栏分组、反馈去重与五语代理文案；后续结构动效分阶段交付。[说明](docs/nyacatch/0.26.0.md)
+
+- **0.25.1 本机维护更新**：解析阶段实时反馈、主/备用路线错误分别展示、一键重试和取消保护；公开发行仍为0.25.0。[说明](docs/nyacatch/0.25.1.md)
 
 - **0.25.0 正式版**：提供安装版与免安装版；安装版接入本仓库 GitHub Releases 更新，增加安装前任务检查、数据备份和旧版导入保护；收紧素材网页与桌面能力的隔离，随包附带依赖许可。[更新与使用说明](docs/nyacatch/0.25.0.md)
 

@@ -132,6 +132,8 @@ export const jaUi: Record<
   v4StartDownload: "ダウンロードを開始",
   v4SaveCover: "サムネイルを保存",
   v4DownloadStarted: "タスクを作成し、ダウンロードを開始しました",
+  v4StartUnconfirmed:
+    "タスクを作成しました。開始状況はキューで確認してください",
   v4QueueAdded: "キューに追加しました。開始するには手動で操作してください",
   v4TasksHint: "進捗の確認、ダウンロードとローカルファイルの管理",
   v4Search: "名前または配信元の URL で検索",
@@ -226,9 +228,9 @@ export const jaUi: Record<
   sThemeDesc_sakura: "淡い白と桜色の、優しく明るい配色",
   sThemeDesc_sunset: "淡い杏色とオレンジの、温かく活気のある配色",
   sSelected: "選択中",
-  sProxyHint: "プロキシのアドレスと既存の 2 つのスイッチをまとめて設定します。",
+  sProxyHint: "NyaCatch が使用するプロキシアドレスを設定します。",
   sProxyScope:
-    "NyaCatch 内だけに適用され、システムや他のアプリの設定は変更しません。リンク解析と新しいダウンロード処理のプロキシ設定、およびダウンロード用スイッチの適用範囲は維持します。",
+    "NyaCatch 内だけに適用され、システムや他のアプリのプロキシ設定は変更しません。",
   sProxyAddressHint:
     "http://、https://、socks5://、socks5h:// に対応しています。使用しない場合は空欄にしてください。",
   sProxyInvalid:
@@ -236,9 +238,9 @@ export const jaUi: Record<
   sProxyRequired:
     "プロキシを有効にする前に、有効なアドレスを入力してください。",
   sProxySwitchHint:
-    "オンでは上記のアドレスを使用し、オフではメディア閲覧にシステムのプロキシを使用します。解析とダウンロードのスイッチ動作は維持します。",
+    "オンではリンク解析、新規ダウンロード、メディア閲覧に上記のアドレスを使用します。オフでは解析とダウンロードにこのアドレスを使わず、メディア閲覧はシステムのプロキシに従います。",
   sDownloadProxyHint:
-    "既存のダウンロード用プロキシ設定と、その適用範囲を保持します。",
+    "互換性のために保存する旧設定です。現在のダウンロード処理では参照しません。ダウンロードのプロキシは上のスイッチで設定してください。",
   sApply: "変更を適用",
   sResetDraft: "未保存の変更を破棄",
   sSaved: "保存しました",

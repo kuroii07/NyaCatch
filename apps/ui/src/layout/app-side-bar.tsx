@@ -1,20 +1,21 @@
 import { App } from "antd";
+import { Fragment, useRef } from "react";
 import { SidebarTooltip as Tooltip } from "@/components/sidebar-tooltip";
 import {
   CheckCircle2,
   Camera,
   Clapperboard,
-  Boxes,
   ChevronsLeft,
   ChevronsRight,
+  Combine,
   Globe2,
   Compass,
+  Layers,
   List,
   Moon,
   Plus,
   RefreshCw,
   Scissors,
-  ListPlus,
   Settings2,
   Sun,
 } from "lucide-react";
@@ -27,9 +28,12 @@ import { useAppStore } from "@/store/app";
 import { useSessionStore } from "@/store/session";
 import { usePlatform } from "@/hooks/use-platform";
 import { cn, isWeb } from "@/utils";
+import { useSidebarMotion } from "@/hooks/use-sidebar-motion";
+import { useBrandBadges } from "@/hooks/use-brand-badges";
 
 export function AppSideBar({ className }: { className?: string }) {
   const { t } = useTranslation();
+  const { created, completed } = useBrandBadges();
   const { pathname } = useLocation();
   const { app } = usePlatform();
   const { message } = App.useApp();
@@ -37,23 +41,46 @@ export function AppSideBar({ className }: { className?: string }) {
   const setAppStore = useAppStore((state) => state.setAppStore);
   const openInNewWindow = useAppStore((state) => state.openInNewWindow);
   const expanded = useAppearance((state) => state.sidebarExpanded);
+  const sidebar = useRef<HTMLElement>(null);
+  const indicator = useRef<HTMLSpanElement>(null);
+  useSidebarMotion(sidebar, indicator, pathname, expanded);
   const setAppearance = useAppearance((state) => state.setAppearance);
   const links = [
-    { path: "/", key: "wbNew", icon: Plus },
-    { path: "/queue", key: "wbQueue", icon: List },
-    { path: "/done", key: "wbCompleted", icon: CheckCircle2 },
+    { path: "/", key: "wbNew", icon: Plus, group: "download" },
+    { path: "/queue", key: "wbQueue", icon: List, group: "download" },
+    {
+      path: "/done",
+      key: "wbCompleted",
+      icon: CheckCircle2,
+      group: "download",
+    },
     ...(!isWeb
       ? [
-          { path: "/converter", key: "converter", icon: RefreshCw },
-          { path: "/trim", key: "trTitle", icon: Scissors },
-          { path: "/merge", key: "mgTitle", icon: ListPlus },
-          { path: "/capture", key: "capTitle", icon: Camera },
-          { path: "/compress", key: "vpTitle", icon: Clapperboard },
-          { path: "/mux", key: "mxTitle", icon: Boxes },
-          { path: "/source", key: "materialExtraction", icon: Globe2 },
+          {
+            path: "/converter",
+            key: "converter",
+            icon: RefreshCw,
+            group: "media",
+          },
+          { path: "/trim", key: "trTitle", icon: Scissors, group: "media" },
+          { path: "/merge", key: "mgTitle", icon: Combine, group: "media" },
+          { path: "/capture", key: "capTitle", icon: Camera, group: "media" },
+          {
+            path: "/compress",
+            key: "vpTitle",
+            icon: Clapperboard,
+            group: "media",
+          },
+          { path: "/mux", key: "mxTitle", icon: Layers, group: "media" },
+          {
+            path: "/source",
+            key: "materialExtraction",
+            icon: Globe2,
+            group: "discover",
+          },
         ]
       : []),
-    { path: "/platforms", key: "pNav", icon: Compass },
+    { path: "/platforms", key: "pNav", icon: Compass, group: "discover" },
   ];
   async function toggleTheme() {
     const next = theme === "dark" ? AppTheme.Light : AppTheme.Dark;
@@ -68,41 +95,67 @@ export function AppSideBar({ className }: { className?: string }) {
   }
   return (
     <aside
+      ref={sidebar}
       id="app-sidebar"
       className={cn("wb-sidebar", expanded && "is-expanded", className)}
     >
+      <span
+        ref={indicator}
+        className="nc-sidebar-indicator"
+        aria-hidden="true"
+      />
       <nav aria-label={t("wbBrand")}>
-        {links.map(({ path, key, icon: Icon }) => (
-          <Tooltip
-            key={path}
-            title={expanded ? undefined : t(key)}
-            placement="right"
-          >
-            <Link
-              to={path}
-              aria-label={t(key)}
-              aria-current={
-                pathname === path || (path === "/" && pathname === "/batch")
-                  ? "page"
-                  : undefined
-              }
-              className={cn(
-                "wb-nav-item",
-                (pathname === path ||
-                  (path === "/" && pathname === "/batch")) &&
-                  "is-active",
-              )}
-              onClick={(event) => {
-                if (path === "/source" && openInNewWindow) {
-                  event.preventDefault();
-                  void app.showBrowserWindow();
+        {links.map(({ path, key, icon: Icon, group }, index) => (
+          <Fragment key={path}>
+            {/* Visual-only group break: download / media tools / discover. */}
+            {index > 0 && links[index - 1].group !== group && (
+              <hr className="wb-nav-divider" aria-hidden="true" />
+            )}
+            <Tooltip title={expanded ? undefined : t(key)} placement="right">
+              <Link
+                to={path}
+                aria-label={t(key)}
+                aria-current={
+                  pathname === path || (path === "/" && pathname === "/batch")
+                    ? "page"
+                    : undefined
                 }
-              }}
-            >
-              <Icon size={22} strokeWidth={1.8} />
-              <span className="wb-nav-label">{t(key)}</span>
-            </Link>
-          </Tooltip>
+                className={cn(
+                  "wb-nav-item",
+                  (pathname === path ||
+                    (path === "/" && pathname === "/batch")) &&
+                    "is-active",
+                )}
+                onClick={(event) => {
+                  if (path === "/source" && openInNewWindow) {
+                    event.preventDefault();
+                    void app.showBrowserWindow();
+                  }
+                }}
+              >
+                <Icon size={22} strokeWidth={1.8} />
+                {path === "/queue" && created && (
+                  <span
+                    key={created.key}
+                    className="nc-nav-badge"
+                    aria-hidden="true"
+                    data-testid="queue-created-badge"
+                  >
+                    +{created.count}
+                  </span>
+                )}
+                {path === "/done" && completed > 0 && (
+                  <span
+                    key={completed}
+                    className="nc-nav-badge nc-nav-badge--done"
+                    aria-hidden="true"
+                    data-testid="completed-badge"
+                  />
+                )}
+                <span className="wb-nav-label">{t(key)}</span>
+              </Link>
+            </Tooltip>
+          </Fragment>
         ))}
       </nav>
       <div className="wb-nav-bottom">

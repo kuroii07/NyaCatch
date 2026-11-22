@@ -1,10 +1,12 @@
 import useSWR from "swr";
+import { useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getDownloadTasks } from "@/api/download-task";
 import { MediaTaskRow } from "@/components/media-task-row";
 import { useMediaTaskEvents } from "@/hooks/use-media-task-events";
+import { useListMotion } from "@/hooks/use-list-motion";
 import { useAppStore } from "@/store/app";
 
 export function RecentTasks() {
@@ -15,8 +17,18 @@ export function RecentTasks() {
     () => getDownloadTasks({ current: 1, pageSize: 3 }),
   );
   useMediaTaskEvents(mutate);
+  const listRef = useRef<HTMLElement>(null);
+  useListMotion(
+    listRef,
+    (data?.list || []).map((task) => task.id),
+    JSON.stringify([local]),
+  );
   return (
-    <section className="wb-recent" aria-labelledby="recent-title">
+    <section
+      ref={listRef}
+      className="wb-recent nc-list-motion"
+      aria-labelledby="recent-title"
+    >
       <div className="wb-section-title">
         <h2 id="recent-title">{t("wbRecent")}</h2>
         <Link to="/queue">

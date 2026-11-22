@@ -38,6 +38,7 @@ import { getDownloadLog, getDownloadTasks } from "@/api/download-task";
 import { exportFavorites, importFavorites } from "@/api/favorite";
 import { useEnvPath } from "@/hooks/use-config";
 import { usePlatform } from "@/hooks/use-platform";
+import { SlidingIndicator } from "@/components/sliding-indicator";
 import { appStoreSelector, useAppStore } from "@/store/app";
 import { http } from "@/utils/http";
 import {
@@ -132,7 +133,7 @@ function DraftSettings({
   return (
     <div data-testid={`${kind}-draft`}>
       <Row
-        title={t(proxy ? "proxySetting" : "dockerUrl")}
+        title={t(proxy ? "proxyAddress" : "dockerUrl")}
         hint={t(proxy ? "sProxyAddressHint" : "sRemoteHint")}
         field={proxy ? "proxy" : "dockerUrl"}
         wide
@@ -467,7 +468,12 @@ export default function SettingPage() {
         )}
       </header>
       <div className="s-layout">
-        <nav className="s-navigation" role="tablist" aria-label={t("sTitle")}>
+        <nav
+          className="s-navigation nc-sliding-tabs"
+          role="tablist"
+          aria-label={t("sTitle")}
+        >
+          <SlidingIndicator activeKey={group} />
           {groups.map(({ id, key, icon: Icon }) => (
             <button
               type="button"

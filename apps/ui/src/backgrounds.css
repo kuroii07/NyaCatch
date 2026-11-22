@@ -31,7 +31,7 @@
 .s-background-card {
   min-width: 0;
   border: 1px solid var(--wb-line);
-  border-radius: 12px;
+  border-radius: var(--nc-r-lg);
   padding: 6px;
   background: var(--wb-surface);
   color: var(--wb-ink);
@@ -48,7 +48,7 @@
 .s-background-thumbnail {
   display: flex;
   height: 76px;
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   overflow: hidden;
   align-items: center;
   justify-content: center;
@@ -66,7 +66,7 @@
   justify-content: space-between;
   gap: 6px;
   padding: 9px 4px 3px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .s-background-name svg {
   flex-shrink: 0;
@@ -83,11 +83,11 @@
   gap: 7px;
   padding: 8px 12px;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-surface);
   color: var(--wb-ink);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .s-background-actions button:hover:not(:disabled) {
   background: var(--wb-soft);
@@ -98,13 +98,13 @@
 }
 .s-background-hint {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   line-height: 1.7;
 }
 .s-background-error {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-error);
 }
 .s-background-sliders {
@@ -117,7 +117,7 @@
   justify-content: space-between;
   gap: 12px;
   color: var(--wb-ink);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   margin-bottom: 8px;
 }
 .s-background-sliders output {

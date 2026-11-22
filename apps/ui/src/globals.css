@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./type.css";
+@import "./motion.css";
 @import "./workbench.css";
 @import "./themes.css";
 @import "./form-controls.css";

@@ -129,6 +129,7 @@ export const koUi: Record<
   v4StartDownload: "다운로드 시작",
   v4SaveCover: "표지 이미지 저장",
   v4DownloadStarted: "작업을 만들고 다운로드를 시작했습니다",
+  v4StartUnconfirmed: "작업을 만들었습니다. 대기열에서 시작 상태를 확인하세요",
   v4QueueAdded: "대기열에 추가했습니다. 준비되면 직접 시작하세요",
   v4TasksHint: "다운로드 진행 상황과 기기의 파일을 관리하세요",
   v4Search: "이름 또는 출처 URL 검색",
@@ -219,17 +220,17 @@ export const koUi: Record<
   sThemeDesc_sakura: "분홍빛 흰색과 벚꽃색의 은은하고 화사한 조화",
   sThemeDesc_sunset: "살구빛 흰색과 주황의 따뜻하고 활기찬 조화",
   sSelected: "선택됨",
-  sProxyHint: "프록시 주소와 기존 두 가지 스위치를 여기서 설정합니다.",
+  sProxyHint: "NyaCatch에서 사용할 프록시 주소를 설정합니다.",
   sProxyScope:
-    "NyaCatch 내부에만 적용되며 시스템이나 다른 앱 설정은 바꾸지 않습니다. 링크 분석과 새 다운로더의 프록시 설정 및 다운로드 프록시 스위치의 기존 범위를 유지합니다.",
+    "NyaCatch 내부에만 적용되며 시스템이나 다른 앱의 프록시 설정은 바꾸지 않습니다.",
   sProxyAddressHint:
     "http://, https://, socks5:// 또는 socks5h:// 주소를 지원합니다. 사용하지 않으면 비워 두세요.",
   sProxyInvalid: "프로토콜과 호스트를 포함한 유효한 프록시 URL을 입력하세요.",
   sProxyRequired: "프록시를 켜기 전에 유효한 주소를 입력하세요.",
   sProxySwitchHint:
-    "켜면 위 주소를 사용하고, 끄면 미디어 탐색은 시스템 프록시를 따릅니다. 링크 분석과 다운로드 스위치의 기존 동작은 유지합니다.",
+    "켜면 링크 분석, 새 다운로드, 미디어 탐색에 위 주소를 사용합니다. 끄면 분석과 다운로드는 이 주소를 사용하지 않고, 미디어 탐색은 시스템 프록시를 따릅니다.",
   sDownloadProxyHint:
-    "기존 다운로드 프록시 설정과 현재 적용 범위를 유지합니다.",
+    "호환성을 위해 저장하는 이전 설정입니다. 현재 다운로드 흐름은 이 스위치를 읽지 않습니다. 다운로드 프록시는 위 스위치로 설정하세요.",
   sApply: "변경 사항 적용",
   sResetDraft: "저장하지 않은 변경 취소",
   sSaved: "저장됨",

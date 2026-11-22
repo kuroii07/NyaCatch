@@ -1,0 +1,10 @@
+/* Draw inside the existing row bounds without shifting neighbouring rows.
+ * Selection/focus and the existing hover accent take precedence. */
+.v4-task-row[data-task-status="failed"]:not(.is-selected):not(:focus-within) {
+  border-color: var(--nc-error, var(--wb-error));
+}
+.v4-task-row[data-task-status="failed"]:not(.is-selected):not(
+    :focus-within
+  ):not(:hover) {
+  box-shadow: inset 0 0 0 1px var(--nc-error, var(--wb-error));
+}

@@ -34,10 +34,10 @@ html[data-theme] :is(.wb-primary, .wb-solid-primary):active:not(:disabled) {
   border-color: var(--wb-primary-active);
 }
 html[data-theme] :is(.wb-primary, .wb-solid-primary):disabled {
-  background: var(--wb-disabled);
+  background: transparent;
   border-color: var(--wb-line);
   color: var(--wb-disabled-text);
-  opacity: 1;
+  opacity: 0.55;
 }
 html[data-theme] .wb-primary svg {
   color: inherit;
@@ -78,10 +78,12 @@ html[data-theme] .v4-output-tabs button:hover:not(:disabled) {
   background: var(--wb-soft);
   color: var(--wb-ink);
 }
+/* 0.26.0: unavailable segments recede instead of reading as a heavier grey block. */
 html[data-theme] .v4-output-tabs button:disabled {
-  background: var(--wb-disabled);
+  background: transparent;
   color: var(--wb-disabled-text);
-  border-color: var(--wb-line);
+  border-color: transparent;
+  opacity: 0.55;
 }
 html[data-theme] .v4-task-row input[type="checkbox"] {
   accent-color: var(--wb-focus);
@@ -111,9 +113,43 @@ html[data-theme] .ant-btn-primary:not(:disabled):hover {
   color: var(--wb-primary-text);
 }
 html[data-theme] .ant-btn-primary:disabled {
-  background: var(--wb-disabled);
+  background: transparent;
   border-color: var(--wb-line);
   color: var(--wb-disabled-text);
+}
+
+html[data-theme] :is(.wb-secondary, .wb-icon-button, .wb-tool-icon):disabled {
+  background: transparent;
+  color: var(--wb-disabled-text);
+  opacity: 0.55;
+}
+
+html[data-theme].dark .v4-settings {
+  background: var(--wb-raised);
+}
+
+.v4-action-bar > div:first-child > .v4-submit-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--nc-success);
+  font-size: var(--nc-fs-body);
+}
+
+.v4-action-bar .v4-submit-success svg {
+  flex-shrink: 0;
+}
+
+.v4-submit-actions > a {
+  text-decoration: none;
+}
+.media-app a.wb-secondary {
+  color: var(--wb-ink);
+  background: var(--wb-surface);
+}
+.media-app a.wb-secondary:hover {
+  color: var(--wb-ink);
+  background: var(--wb-soft);
 }
 html[data-theme] {
   --background: var(--wb-canvas);

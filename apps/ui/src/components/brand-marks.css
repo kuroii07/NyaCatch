@@ -1,0 +1,91 @@
+.nc-brand-logo,
+.nc-brand-paw,
+.nc-brand-check {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.nc-brand-logo [data-brand-ear="right"] {
+  /* Coordinates are local to the source SVG's translated cat group. */
+  transform-box: view-box;
+  transform-origin: 870px 400px;
+}
+
+.nc-brand-check [data-brand-check-stroke] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Match only the actual header child, never a cloned flying logo. */
+  html[data-nc-motion="full"]
+    .wb-app-header
+    > .wb-brand
+    > .nc-brand-logo:hover
+    [data-brand-ear="right"] {
+    animation: nc-brand-ear-twitch 300ms ease-in-out;
+  }
+
+  html[data-nc-motion="full"]
+    .nc-brand-check[data-draw="true"]
+    [data-brand-check-stroke] {
+    animation: nc-brand-check-draw 180ms var(--nc-ease-out, ease-out);
+  }
+}
+
+/* No gate attribute means no performance during the initial unconfigured mount. */
+html[data-nc-motion="reduced"]
+  .wb-app-header
+  > .wb-brand
+  > .nc-brand-logo:hover
+  [data-brand-ear="right"],
+html[data-nc-motion="reduced"] .nc-brand-check[data-draw="true"] {
+  animation: nc-brand-mark-fade 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-nc-motion]
+    .wb-app-header
+    > .wb-brand
+    > .nc-brand-logo:hover
+    [data-brand-ear="right"],
+  html[data-nc-motion] .nc-brand-check[data-draw="true"] {
+    animation: nc-brand-mark-fade 120ms ease-out;
+  }
+
+  .nc-brand-check [data-brand-check-stroke] {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nc-brand-ear-twitch {
+  0% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes nc-brand-check-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nc-brand-mark-fade {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -62,6 +62,7 @@ export const en = {
   browserSetting: "Browser",
   pleaseEnterProxy: "Enter the full address, e.g. http://127.0.0.1:8000",
   proxySetting: "Proxy",
+  proxyAddress: "Proxy address",
   pleaseEnterProxyFirst: "Enter a proxy address first",
   dockerUrl: "Docker URL",
   pleaseEnterDockerUrl: "Enter the Docker URL",
@@ -93,8 +94,8 @@ export const en = {
   currentVersion: "Version",
   selectFolder: "Select folder",
   selectFile: "Select file",
-  proxySwitch: "Proxy",
-  downloadProxySwitch: "Use proxy for downloads",
+  proxySwitch: "Use this proxy",
+  downloadProxySwitch: "Use proxy for downloads (legacy)",
   proxyDescription:
     "The proxy applies to both the built-in browser and downloads",
   useImmersiveSniffing: "Immersive sniffing",

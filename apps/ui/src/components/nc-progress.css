@@ -1,0 +1,109 @@
+html .nc-progress {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 12px;
+  overflow: clip;
+  color: var(--wb-progress, var(--wb-accent));
+}
+html .nc-progress > .nc-progress__track {
+  position: absolute;
+  inset: 4px 5px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--wb-line);
+}
+html .nc-progress__track > .nc-progress__fill {
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  transform-origin: left center;
+  transition: none;
+}
+html .nc-progress > .nc-progress__markers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+html .nc-progress__markers > .nc-progress__marker {
+  position: absolute;
+  inset: 1px 5px;
+  pointer-events: none;
+  transition: none;
+}
+html .nc-progress__marker > svg {
+  position: absolute;
+  left: -5px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  transform-origin: center;
+}
+html .nc-progress[data-state="paused"] {
+  color: var(--wb-muted);
+}
+html .nc-progress[data-state="complete"] {
+  color: var(--nc-success, var(--wb-progress));
+}
+html .nc-progress[data-state="failed"] {
+  color: var(--nc-error, var(--wb-error));
+}
+.cvt-progress {
+  margin-top: 6px;
+}
+.v4-task-status > .nc-progress {
+  margin: -2px 0;
+}
+
+/* Initial/disabled and reduced modes are static. Only this component is gated. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-nc-motion="full"]
+    .nc-progress:not([data-state="paused"])
+    .nc-progress__fill,
+  html[data-nc-motion="full"]
+    .nc-progress:not([data-state="paused"])
+    .nc-progress__marker {
+    transition: transform 300ms var(--nc-ease-out, ease-out);
+  }
+  html[data-nc-motion="full"]
+    .nc-progress[data-state="active"]
+    .nc-progress__marker
+    > svg {
+    animation: nc-progress-paw 1.2s ease-in-out infinite alternate;
+  }
+  html[data-nc-motion="full"]
+    .nc-progress[data-state="active"][data-indeterminate]
+    .nc-progress__fill {
+    animation: nc-progress-slide 1.4s ease-in-out infinite alternate;
+  }
+  html[data-nc-motion="full"]
+    .nc-progress[data-state="active"][data-indeterminate]
+    .nc-progress__marker {
+    animation: nc-progress-front 1.4s ease-in-out infinite alternate;
+  }
+}
+@keyframes nc-progress-paw {
+  from {
+    transform: translateY(-1px);
+  }
+  to {
+    transform: translateY(1px);
+  }
+}
+@keyframes nc-progress-slide {
+  from {
+    transform: translateX(0) scaleX(0.3);
+  }
+  to {
+    transform: translateX(70%) scaleX(0.3);
+  }
+}
+@keyframes nc-progress-front {
+  from {
+    transform: translateX(30%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

@@ -16,14 +16,14 @@
 .s-content-heading p {
   margin: 0;
   color: var(--wb-muted);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .s-save-state {
   display: flex;
   align-items: center;
   gap: 7px;
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .s-layout {
   display: flex;
@@ -54,7 +54,7 @@
   background: transparent;
   color: var(--wb-muted);
   text-align: start;
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .s-navigation button:hover {
   background: transparent;
@@ -89,7 +89,7 @@
 .s-section {
   border: 1px solid var(--wb-line);
   background: var(--wb-surface);
-  border-radius: 13px;
+  border-radius: var(--nc-r-lg);
   overflow: hidden;
   margin-bottom: 18px;
 }
@@ -98,13 +98,13 @@
   border-bottom: 1px solid var(--wb-line);
 }
 .s-section > header h3 {
-  font-size: 14px;
+  font-size: var(--nc-fs-body-lg);
   font-weight: 650;
   margin: 0;
 }
 .s-section > header p {
   margin: 5px 0 0;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.6;
   color: var(--wb-muted);
 }
@@ -128,12 +128,12 @@
   flex: 1;
 }
 .s-row-label label {
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   font-weight: 550;
   line-height: 1.5;
 }
 .s-row-label p {
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.65;
   color: var(--wb-muted);
   max-width: 480px;
@@ -193,7 +193,7 @@
   overflow-wrap: anywhere;
   background: var(--wb-control);
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
 }
 .s-path-control > div {
   display: flex;
@@ -222,12 +222,12 @@
 }
 .s-note {
   margin: 14px 0;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.7;
   color: var(--wb-muted);
   background: var(--wb-soft);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
 }
 .s-draft-footer {
   display: flex;
@@ -239,7 +239,7 @@
 }
 .s-draft-footer > span {
   flex: 1;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   min-width: 120px;
 }
@@ -272,11 +272,11 @@
 .s-brand-card p {
   margin: 0 0 5px;
   color: var(--wb-muted);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .s-brand-card span {
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .s-theme-grid {
   display: grid;
@@ -290,11 +290,11 @@
   border: 1px solid var(--wb-line);
   background: var(--wb-surface);
   color: var(--wb-ink);
-  border-radius: 10px;
+  border-radius: var(--nc-r-md);
   text-align: start;
   transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+    border-color var(--nc-dur-fast) var(--nc-ease-out),
+    box-shadow var(--nc-dur-fast) var(--nc-ease-out);
 }
 .s-theme-card:hover {
   border-color: var(--wb-focus);
@@ -308,7 +308,7 @@
   display: block;
   position: relative;
   border: 1px solid;
-  border-radius: 6px;
+  border-radius: var(--nc-r-sm);
   overflow: hidden;
 }
 .s-theme-top {
@@ -363,7 +363,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-weight: 600;
   line-height: 1.6;
   margin: 8px 2px 3px;
@@ -371,7 +371,7 @@
 .s-theme-description {
   display: none;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   line-height: 1.6;
   margin: 0 3px 4px;
 }
@@ -469,7 +469,7 @@
   gap: 10px;
 }
 .s-brand-card [data-testid="settings-product-version"] {
-  font-size: 20px;
+  font-size: var(--nc-fs-title);
   font-weight: 650;
   color: var(--wb-ink);
 }

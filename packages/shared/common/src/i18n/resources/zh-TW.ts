@@ -64,6 +64,7 @@ export const zhTW: Record<keyof typeof en, string> = {
   browserSetting: "瀏覽器",
   pleaseEnterProxy: "請輸入完整位址，例如 http://127.0.0.1:8000",
   proxySetting: "代理伺服器",
+  proxyAddress: "代理伺服器位址",
   pleaseEnterProxyFirst: "請先輸入代理伺服器位址",
   dockerUrl: "Docker 網址",
   pleaseEnterDockerUrl: "請輸入 Docker 網址",
@@ -93,8 +94,8 @@ export const zhTW: Record<keyof typeof en, string> = {
   currentVersion: "版本",
   selectFolder: "選擇資料夾",
   selectFile: "選擇檔案",
-  proxySwitch: "代理伺服器",
-  downloadProxySwitch: "下載時使用代理伺服器",
+  proxySwitch: "使用此代理伺服器",
+  downloadProxySwitch: "下載時使用代理伺服器（舊版設定）",
   proxyDescription: "代理伺服器同時適用於內建瀏覽器與下載",
   useImmersiveSniffing: "沉浸式偵測",
   immersiveSniffingDescription:

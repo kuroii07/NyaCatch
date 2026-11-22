@@ -1,5 +1,9 @@
 import { http } from "@/utils";
 import type { CollectionSelection } from "@mediago/shared-common";
+import {
+  readMediaParseStream,
+  type MediaParseStage,
+} from "../utils/media-parse";
 
 export interface MediaPreview {
   collection?: CollectionSelection;
@@ -46,12 +50,43 @@ export const resolveMedia = async (
   url: string,
   signal: AbortSignal,
   collection?: CollectionSelection,
+  onStage?: (stage: MediaParseStage) => void,
 ): Promise<MediaPreview> => {
-  const result: MediaPreview = await http.post(
+  const response = await http.post<
+    never,
+    MediaPreview | ReadableStream<Uint8Array>
+  >(
     "/api/media/preview",
     { url, collection },
-    { signal, timeout: 65000 },
+    {
+      signal,
+      timeout: 65000,
+      ...(onStage
+        ? {
+            adapter: "fetch",
+            responseType: "stream",
+            headers: { Accept: "application/x-ndjson" },
+          }
+        : {}),
+    },
   );
+  let received: MediaPreview | undefined;
+  let result: MediaPreview;
+  try {
+    result = onStage
+      ? await readMediaParseStream<MediaPreview>(
+          response as ReadableStream<Uint8Array>,
+          onStage,
+          (value) => {
+            received = value;
+          },
+        )
+      : (response as MediaPreview);
+  } catch (reason) {
+    if (received?.previewSession)
+      void removeMediaPlayback(received.previewSession).catch(() => {});
+    throw reason;
+  }
   const base = http.defaults.baseURL || window.location.origin;
   for (const item of [result, ...(result.resources || [])]) {
     if (item.displayThumbnail)

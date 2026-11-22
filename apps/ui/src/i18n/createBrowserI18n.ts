@@ -1,4 +1,5 @@
 import { settingsMaintenanceMessages } from "./settings-maintenance";
+import { mediaParseMessages } from "./media-parse";
 import { releaseMessages } from "./release";
 import { converterOptionsTranslations } from "./converter-options";
 import { trimMessages } from "./trim";
@@ -93,6 +94,7 @@ const buildTranslationBundle = (
   Object.assign(translation, sourceExtractMessages[language]);
   Object.assign(translation, sourceHomeMessages[language]);
   Object.assign(translation, collectionMessages[language]);
+  Object.assign(translation, mediaParseMessages[language]);
   Object.assign(
     translation,
     Object.fromEntries(

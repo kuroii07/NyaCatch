@@ -4,8 +4,11 @@ import (
 	"caorushizi.cn/mediago/internal/api/dto"
 	"caorushizi.cn/mediago/internal/service"
 	"caorushizi.cn/mediago/pkg/collection"
+	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type MediaHandler struct {
@@ -62,13 +65,49 @@ func (h *MediaHandler) Preview(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Success: false, Code: 400, Message: err.Error()})
 		return
 	}
-	result, err := h.resolver.ResolveCollectionEntry(c.Request.Context(), request.URL, request.Collection)
+	ctx, cancel := context.WithCancel(c.Request.Context())
+	defer cancel()
+	streaming := strings.Contains(c.GetHeader("Accept"), "application/x-ndjson")
+	emit := func(value any) {
+		if ctx.Err() != nil {
+			return
+		}
+		data, err := json.Marshal(value)
+		if err != nil {
+			cancel()
+			return
+		}
+		if _, err = c.Writer.Write(append(data, '\n')); err != nil {
+			cancel()
+			return
+		}
+		c.Writer.Flush()
+	}
+	if streaming {
+		c.Header("Content-Type", "application/x-ndjson; charset=utf-8")
+		c.Header("Cache-Control", "no-store")
+		c.Header("X-Accel-Buffering", "no")
+		ctx = service.WithMediaParseProgress(ctx, func(stage string) {
+			emit(gin.H{"type": "progress", "stage": stage})
+		})
+		emit(gin.H{"type": "progress", "stage": "primary"})
+	}
+	result, err := h.resolver.ResolveCollectionEntry(ctx, request.URL, request.Collection)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{Success: false, Code: 422, Message: err.Error()})
+		failure := service.MediaParseFailureDetails(err)
+		if streaming {
+			emit(gin.H{"type": "error", "message": err.Error(), "failure": failure})
+		} else {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"success": false, "code": 422, "message": err.Error(), "failure": failure})
+		}
 		return
 	}
 	h.playback.AttachThumbnails(result)
-	c.JSON(http.StatusOK, dto.SuccessResponse{Success: true, Code: 200, Data: result})
+	if streaming {
+		emit(gin.H{"type": "result", "data": result})
+	} else {
+		c.JSON(http.StatusOK, dto.SuccessResponse{Success: true, Code: 200, Data: result})
+	}
 }
 
 func (h *MediaHandler) Collection(c *gin.Context) {

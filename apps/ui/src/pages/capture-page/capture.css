@@ -2,7 +2,7 @@
   display: flex;
   gap: 4px;
   padding: 3px;
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-soft);
   margin-bottom: 16px;
 }
@@ -13,11 +13,11 @@
   flex: 1;
   gap: 5px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   padding: 9px 6px;
   background: transparent;
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   cursor: pointer;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -37,14 +37,14 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   flex: none;
 }
 .capture-time input {
   width: 132px;
   min-width: 0;
   border: 1px solid var(--wb-line);
-  border-radius: 7px;
+  border-radius: var(--nc-r-md);
   padding: 8px;
   background: var(--wb-control);
   color: var(--wb-ink);
@@ -53,7 +53,7 @@
 .capture-time small {
   flex-basis: 100%;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   overflow-wrap: anywhere;
 }
 .capture-range {
@@ -66,18 +66,18 @@
   width: 100%;
   min-width: 0;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   padding: 10px 6px;
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .capture-loop {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0 0 16px;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-ink);
 }
 .capture-settings .trim-hint {
@@ -89,7 +89,7 @@
 }
 .capture-settings .cvt-field > span {
   display: block;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   font-weight: 700;
   color: var(--wb-ink);
   margin-bottom: 9px;
@@ -99,14 +99,14 @@
   min-width: 0;
   height: 40px;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
   padding: 0 8px;
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .capture-settings .capture-range input {
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   padding: 10px 6px;
 }
 .capture-left .trim-player {

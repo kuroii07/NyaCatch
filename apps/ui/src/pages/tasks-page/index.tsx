@@ -20,6 +20,7 @@ import {
 } from "@/api/download-task";
 import { useAppStore } from "@/store/app";
 import { useMediaTaskEvents } from "@/hooks/use-media-task-events";
+import { useListMotion } from "@/hooks/use-list-motion";
 import { useUrlInvoke } from "@/hooks/use-url-invoke";
 import DownloadForm, { type DownloadFormRef } from "@/components/download-form";
 import { MediaTaskRow } from "@/components/media-task-row";
@@ -79,6 +80,12 @@ export default function TasksPage({
   });
   const tasks = data?.list || [];
   const ids = tasks.map((task) => task.id);
+  const listRef = useRef<HTMLDivElement>(null);
+  useListMotion(
+    listRef,
+    ids,
+    JSON.stringify([filter, page, pageSize, search, status, local]),
+  );
   const total = data?.total || 0;
   const pages = Math.max(1, Math.ceil(total / pageSize));
   useEffect(() => {
@@ -530,7 +537,11 @@ export default function TasksPage({
           )}
         </div>
       </div>
-      <div className="v4-task-list" aria-label={t("downloadList")}>
+      <div
+        ref={listRef}
+        className="v4-task-list nc-list-motion"
+        aria-label={t("downloadList")}
+      >
         {isLoading && (
           <p className="v4-list-message" role="status">
             {t("wbLoading")}

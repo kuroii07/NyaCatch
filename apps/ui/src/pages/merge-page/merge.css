@@ -34,12 +34,12 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 14px;
+  font-size: var(--nc-fs-body-lg);
 }
 .merge-source-bar small {
   display: block;
   margin-top: 3px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   overflow-wrap: anywhere;
 }
@@ -47,7 +47,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   padding: 7px 9px;
 }
 .merge-left .trim-preview {
@@ -66,7 +66,7 @@
   justify-content: center;
   gap: 10px;
   background: var(--wb-soft);
-  border-radius: 10px;
+  border-radius: var(--nc-r-md);
   padding: 20px;
   text-align: center;
 }
@@ -76,7 +76,7 @@
   margin: 0;
 }
 .merge-empty-preview small {
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
 }
 .merge-list-heading {
@@ -86,10 +86,10 @@
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .merge-list-heading small {
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
 }
 .merge-list {
@@ -105,7 +105,7 @@
   align-items: center;
   gap: 4px;
   min-width: 0;
-  border-radius: 6px;
+  border-radius: var(--nc-r-sm);
   padding: 2px 3px;
 }
 .merge-item.is-active {
@@ -141,10 +141,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .merge-select small {
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
   color: var(--wb-muted);
   flex: none;
 }
@@ -159,10 +159,10 @@
   min-width: 0;
   padding: 10px 11px;
   border: 1px solid var(--wb-line);
-  border-radius: 8px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control);
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
 }
 .merge-page .cvt-field > input[aria-invalid="true"] {
   border-color: var(--wb-error);

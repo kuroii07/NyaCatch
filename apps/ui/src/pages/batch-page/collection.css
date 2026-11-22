@@ -1,7 +1,7 @@
 .cl-picker {
   background: var(--wb-surface);
   border: 1px solid var(--wb-line);
-  border-radius: 16px;
+  border-radius: var(--nc-r-lg);
   padding: 18px 20px;
   margin-bottom: 18px;
   min-width: 0;
@@ -14,13 +14,13 @@
   border: 0;
   color: var(--wb-ink);
   padding: 0;
-  font-size: 16px;
+  font-size: var(--nc-fs-section);
   font-weight: 650;
   cursor: pointer;
 }
 .cl-hint {
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
   margin: 10px 0;
   line-height: 1.7;
 }
@@ -35,7 +35,7 @@
   flex: 1;
   padding: 10px 12px;
   border: 1px solid var(--wb-line);
-  border-radius: 9px;
+  border-radius: var(--nc-r-md);
   background: var(--wb-control, var(--wb-surface));
   color: var(--wb-ink);
 }
@@ -48,7 +48,7 @@
   flex-wrap: wrap;
 }
 .cl-heading h2 {
-  font-size: 16px;
+  font-size: var(--nc-fs-section);
   min-width: 0;
   overflow-wrap: anywhere;
   margin: 0;
@@ -56,7 +56,7 @@
 .cl-heading > span,
 .cl-actions > span {
   color: var(--wb-muted);
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .cl-actions {
   display: flex;
@@ -98,19 +98,19 @@
   color: var(--wb-muted);
   width: 28px;
   flex: 0 0 auto;
-  font-size: 12px;
+  font-size: var(--nc-fs-caption);
 }
 .cl-entry-title {
   min-width: 0;
   color: var(--wb-ink);
-  font-size: 13px;
+  font-size: var(--nc-fs-body);
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
 .cl-entry-title small {
   display: block;
   color: var(--wb-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-caption);
 }
 .cl-footer {
   justify-content: flex-end;

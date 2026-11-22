@@ -9,7 +9,6 @@ import {
   RefreshCw,
   ShieldCheck,
   UploadCloud,
-  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,6 +19,10 @@ import {
 } from "@/api/conversion";
 import { useConversions } from "@/hooks/use-conversions";
 import { usePlatform } from "@/hooks/use-platform";
+import {
+  MediaSourceEmpty,
+  SourceRemoveButton,
+} from "@/components/media-source-controls";
 import { useMuxWorkspace } from "@/store/mux-workspace";
 import { filenameForPath } from "../converter-page/converter-model";
 import { byteSize } from "../compress-page/compress-model";
@@ -56,6 +59,7 @@ export default function MuxPage() {
     [revision, setRevision] = useState(0);
   const tasks = useConversions({ kind: "mux", current: page, pageSize: 50 });
   const generation = useRef(0),
+    cancelInspection = useRef<(() => void) | undefined>(undefined),
     disabled = busy || draft.locked;
   const audio = draft.mode === "combine" ? draft.audioPath : "",
     subtitleSettings =
@@ -90,6 +94,24 @@ export default function MuxPage() {
   function patch(value: Partial<MuxDraft>) {
     update((d) => ({ ...d, ...value }));
   }
+  function removeSource(path = useMuxWorkspace.getState().draft.activePath) {
+    const state = useMuxWorkspace.getState();
+    if (
+      state.busy ||
+      state.draft.locked ||
+      choosing ||
+      !state.draft.paths.includes(path)
+    )
+      return;
+    if (!save((value) => removeMuxPath(value, path))) {
+      message.error(t("mxStorage"));
+      return;
+    }
+    generation.current++;
+    cancelInspection.current?.();
+    setReading(false);
+    setReviewed(false);
+  }
   useEffect(() => {
     const prevent = (e: globalThis.DragEvent) => {
       if (Array.from(e.dataTransfer?.types || []).includes("Files"))
@@ -105,6 +127,7 @@ export default function MuxPage() {
   }, []);
   useEffect(() => {
     const abort = new AbortController();
+    cancelInspection.current = () => abort.abort();
     const [paths, audioPath, subtitle]: [
       string[],
       string,
@@ -251,12 +274,23 @@ export default function MuxPage() {
     e.preventDefault();
     e.stopPropagation();
     if (disabled || choosing) return;
+    const epoch = generation.current,
+      snapshot = useMuxWorkspace.getState().draft;
     try {
       const paths = await Promise.all(
         Array.from(e.dataTransfer.files).map((f) =>
           dialog.pathForDroppedFile(f),
         ),
       );
+      const latest = useMuxWorkspace.getState();
+      // Path resolution can finish after a removal or another draft edit.
+      if (
+        epoch !== generation.current ||
+        latest.busy ||
+        latest.draft.locked ||
+        latest.draft !== snapshot
+      )
+        return;
       await select(
         kind === "video" &&
           paths.length > 0 &&
@@ -266,7 +300,7 @@ export default function MuxPage() {
         paths,
       );
     } catch {
-      message.error(t("mxReadFailed"));
+      if (epoch === generation.current) message.error(t("mxReadFailed"));
     }
   }
   async function action(callback: () => Promise<unknown>) {
@@ -457,113 +491,133 @@ export default function MuxPage() {
       <div className="cvt-workspace">
         <div className="cvt-body merge-grid">
           <section
-            className="merge-left mux-left"
+            className={`merge-left mux-left${!draft.paths.length ? " nc-source-empty-host" : ""}`}
             data-testid="mux-dropzone"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => void drop(e, "video")}
           >
-            <div className="merge-source-bar">
-              <div>
-                <strong title={draft.activePath}>
-                  {draft.activePath
-                    ? filenameForPath(draft.activePath)
-                    : t("mxDrop")}
-                </strong>
-                <small>
-                  {media
-                    ? `${byteSize(media.size)} · ${formatTrimTime(duration)} · ${media.streams.filter((s) => s.codec_type === "audio").length} ${t("mxAudioTracks")}`
-                    : t("mxNeedVideo")}
-                </small>
-              </div>
-              <button
-                type="button"
-                className="wb-icon-button"
-                title={t("cReload")}
-                aria-label={t("cReload")}
-                data-testid="mux-refresh"
-                disabled={disabled || choosing || !draft.paths.length}
-                onClick={() => setRefresh((v) => v + 1)}
-              >
-                <RefreshCw size={16} />
-              </button>
-              <button
-                type="button"
-                className="wb-secondary"
-                data-testid="mux-add"
-                disabled={disabled || choosing || draft.paths.length >= 20}
-                onClick={() => void select("video")}
-              >
-                <FolderOpen size={16} />
-                {t("cChoose")}
-              </button>
-            </div>
-            {media?.streams.some((s) => s.codec_type === "video") &&
-            duration > 0 ? (
-              <TrimPreview
-                key={draft.activePath}
-                previewOnly
-                previewErrorKey="mxPreviewFailed"
-                path={draft.activePath}
-                hasVideo
-                duration={duration}
-                start={formatTrimTime(0)}
-                end={formatTrimTime(duration)}
-                disabled={disabled}
-                change={() => {}}
+            {!draft.paths.length ? (
+              <MediaSourceEmpty
+                title={t("mxDrop")}
+                detail={t("mxNoEncode")}
+                chooseTestId="mux-add"
+                disabled={disabled || choosing}
+                onChoose={() => void select("video")}
               />
             ) : (
-              <div className="merge-empty-preview">
-                <UploadCloud size={40} />
-                <p>{t("mxDrop")}</p>
-                <small>{t("mxNoEncode")}</small>
-              </div>
-            )}
-            <div className="mux-files" role="list" aria-label={t("mxVideo")}>
-              {draft.paths.map((path) => {
-                const info = checks[path],
-                  issue = info?.formats.find((f) => f.format === draft.format);
-                return (
-                  <div
-                    className={`mux-file ${path === draft.activePath ? "is-active" : ""}`}
-                    key={path}
-                    data-testid="mux-file"
-                  >
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      aria-pressed={path === draft.activePath}
-                      title={path}
-                      onClick={() => patch({ activePath: path })}
-                    >
-                      <strong>{filenameForPath(path)}</strong>
-                      <small>
-                        {errors[path]
-                          ? t("mxReadFailed")
-                          : reading
-                            ? t("c11Checking")
-                            : issue?.available
-                              ? `${info.source.streams
-                                  .filter((s) => s.codec_type === "video")
-                                  .map((s) => s.codec_name.toUpperCase())
-                                  .join(" / ")} → ${draft.format.toUpperCase()}`
-                              : reasonText(issue?.reason || "mxReadFailed")}
-                      </small>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      title={t("cRemoveDraft")}
-                      aria-label={t("cRemoveDraft")}
-                      onClick={() => update((d) => removeMuxPath(d, path))}
-                    >
-                      <X size={14} />
-                    </button>
+              <>
+                <div className="merge-source-bar">
+                  <div>
+                    <strong title={draft.activePath}>
+                      {draft.activePath
+                        ? filenameForPath(draft.activePath)
+                        : t("mxDrop")}
+                    </strong>
+                    <small>
+                      {media
+                        ? `${byteSize(media.size)} · ${formatTrimTime(duration)} · ${media.streams.filter((s) => s.codec_type === "audio").length} ${t("mxAudioTracks")}`
+                        : t("mxNeedVideo")}
+                    </small>
                   </div>
-                );
-              })}
-            </div>
-            {draft.mode === "combine" && (
-              <small className="trim-hint">{t("mxPreviewHint")}</small>
+                  <button
+                    type="button"
+                    className="wb-icon-button"
+                    title={t("cReload")}
+                    aria-label={t("cReload")}
+                    data-testid="mux-refresh"
+                    disabled={disabled || choosing || !draft.paths.length}
+                    onClick={() => setRefresh((v) => v + 1)}
+                  >
+                    <RefreshCw size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="wb-secondary"
+                    data-testid="mux-add"
+                    disabled={disabled || choosing || draft.paths.length >= 20}
+                    onClick={() => void select("video")}
+                  >
+                    <FolderOpen size={16} />
+                    {t("cChoose")}
+                  </button>
+                  <SourceRemoveButton
+                    testId="mux-remove-source"
+                    disabled={disabled || choosing}
+                    onRemove={() => removeSource()}
+                  />
+                </div>
+                {media?.streams.some((s) => s.codec_type === "video") &&
+                duration > 0 ? (
+                  <TrimPreview
+                    key={draft.activePath}
+                    previewOnly
+                    previewErrorKey="mxPreviewFailed"
+                    path={draft.activePath}
+                    hasVideo
+                    duration={duration}
+                    start={formatTrimTime(0)}
+                    end={formatTrimTime(duration)}
+                    disabled={disabled}
+                    change={() => {}}
+                  />
+                ) : (
+                  <div className="merge-empty-preview">
+                    <UploadCloud size={40} />
+                    <p>{t("mxDrop")}</p>
+                    <small>{t("mxNoEncode")}</small>
+                  </div>
+                )}
+                <div
+                  className="mux-files"
+                  role="list"
+                  aria-label={t("mxVideo")}
+                >
+                  {draft.paths.map((path) => {
+                    const info = checks[path],
+                      issue = info?.formats.find(
+                        (f) => f.format === draft.format,
+                      );
+                    return (
+                      <div
+                        className={`mux-file ${path === draft.activePath ? "is-active" : ""}`}
+                        key={path}
+                        data-testid="mux-file"
+                      >
+                        <button
+                          type="button"
+                          disabled={disabled}
+                          aria-pressed={path === draft.activePath}
+                          title={path}
+                          onClick={() => patch({ activePath: path })}
+                        >
+                          <strong>{filenameForPath(path)}</strong>
+                          <small>
+                            {errors[path]
+                              ? t("mxReadFailed")
+                              : reading
+                                ? t("c11Checking")
+                                : issue?.available
+                                  ? `${info.source.streams
+                                      .filter((s) => s.codec_type === "video")
+                                      .map((s) => s.codec_name.toUpperCase())
+                                      .join(
+                                        " / ",
+                                      )} → ${draft.format.toUpperCase()}`
+                                  : reasonText(issue?.reason || "mxReadFailed")}
+                          </small>
+                        </button>
+                        <SourceRemoveButton
+                          disabled={disabled || choosing}
+                          onRemove={() => removeSource(path)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {draft.mode === "combine" && (
+                  <small className="trim-hint">{t("mxPreviewHint")}</small>
+                )}
+              </>
             )}
             <TrimBatchProgress
               ids={draft.recentIds}

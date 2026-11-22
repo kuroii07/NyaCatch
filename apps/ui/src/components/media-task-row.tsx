@@ -5,9 +5,12 @@ import {
   type MouseEvent,
   type KeyboardEvent,
 } from "react";
-import { App, Dropdown, Modal, Tooltip } from "antd";
+import { App, Dropdown, Modal } from "antd";
+import { Tooltip } from "@/components/tooltip";
+import { BrandCheck } from "@/components/brand-marks";
+import { NcProgress } from "@/components/nc-progress";
+import { useTaskStatusMotion } from "@/hooks/use-task-status-motion";
 import {
-  CheckCircle2,
   Copy,
   FileImage,
   FileMusic,
@@ -32,6 +35,7 @@ import { canRemove, canStart } from "@/pages/tasks-page/task-selection";
 import { TaskThumbnail } from "./task-thumbnail";
 import { conversionModes } from "@/pages/converter-page/converter-workspace";
 import type { ConversionMode } from "@/pages/converter-page/converter-model";
+import "./media-task-row.css";
 
 interface Props {
   task: DownloadTaskWithFile;
@@ -79,6 +83,8 @@ export function MediaTaskRow({
     [task.id],
   );
   const status = task.status || "ready";
+  const rowRef = useRef<HTMLDivElement>(null);
+  useTaskStatusMotion(rowRef, status, task.id);
   const active = status === "downloading" || status === "pending";
   const mode =
     task.options?.mode ||
@@ -93,7 +99,39 @@ export function MediaTaskRow({
       : mode === "cover" || mode === "image"
         ? FileImage
         : FileVideo;
-  const percent = Math.max(0, Math.min(100, Number(live?.percent) || 0));
+  const lastProgress = useRef<{ id: number; status: string; value?: number }>({
+    id: task.id,
+    status,
+  });
+  const parsedMeasurement = live ? Number(live.percent) : undefined;
+  const measurement = Number.isFinite(parsedMeasurement)
+    ? parsedMeasurement
+    : undefined;
+  useEffect(() => {
+    // Active polling contains only active tasks. Another download can therefore
+    // remove a stopped task's entry without invalidating its last measurement.
+    const before = lastProgress.current;
+    const newRun =
+      ["pending", "downloading"].includes(status) &&
+      !["pending", "downloading"].includes(before.status);
+    const reset = before.id !== task.id || newRun || status === "ready";
+    lastProgress.current = {
+      id: task.id,
+      status,
+      value:
+        status === "downloading" && measurement !== undefined
+          ? measurement
+          : reset
+            ? undefined
+            : before.value,
+    };
+  }, [measurement, status, task.id]);
+  const measuredPercent =
+    measurement ??
+    (status === "stopped" && lastProgress.current.id === task.id
+      ? lastProgress.current.value
+      : undefined);
+  const percent = Math.max(0, Math.min(100, measuredPercent || 0));
   const source =
     task.options?.source ||
     (() => {
@@ -220,12 +258,15 @@ export function MediaTaskRow({
   return (
     <>
       <div
+        ref={rowRef}
         className={
           "v4-task-row" +
           (compact ? " is-compact" : "") +
           (selected ? " is-selected" : "")
         }
         data-testid={"task-" + task.id}
+        data-nc-list-key={task.id}
+        data-task-status={status}
         onClick={onSelect}
         onContextMenu={onContext}
         tabIndex={onSelect ? 0 : undefined}
@@ -267,15 +308,17 @@ export function MediaTaskRow({
         </div>
         <div className={"v4-task-status status-" + status}>
           <span>
-            {status === "success" && <CheckCircle2 size={14} />}{" "}
+            {status === "success" && (
+              <BrandCheck width={14} height={14} data-nc-completion="true" />
+            )}{" "}
             {t("v4Status_" + status)}
           </span>
-          {status === "downloading" && (
+          {["downloading", "pending", "stopped"].includes(status) && (
             <>
-              <progress
-                max={100}
+              <NcProgress
+                state={status === "stopped" ? "paused" : "active"}
                 value={percent > 0 && percent < 100 ? percent : undefined}
-                aria-label={task.name}
+                label={task.name}
               />
               <small>
                 {percent > 0 && percent < 100 ? percent.toFixed(1) + "%" : ""}

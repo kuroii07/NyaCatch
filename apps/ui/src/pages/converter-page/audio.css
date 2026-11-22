@@ -1,4 +1,4 @@
-.audio-converter-page .cvt-drop {
+.audio-converter-page .cvt-drop:not(.nc-source-empty-host) {
   min-height: 100px;
   padding: 10px 15px;
   gap: 4px;
@@ -7,20 +7,27 @@
 .audio-converter-page .cvt-drop > p {
   display: none;
 }
-.audio-converter-page .cvt-drop h2 {
-  font-size: 13px;
+.audio-converter-page .cvt-drop:not(.nc-source-empty-host) h2 {
+  font-size: var(--nc-fs-body);
 }
 .audio-source-preview {
   flex: none;
   min-width: 0;
   margin-top: 12px;
 }
-.audio-source-preview > strong {
+.audio-source-preview .cvt-source-preview-heading > strong {
   display: block;
-  font-size: 12px;
+  min-width: 0;
+  flex: 1;
+  font-size: var(--nc-fs-caption);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+.audio-source-preview .cvt-source-preview-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .audio-source-preview .trim-player.is-audio {
   min-height: 0;
@@ -34,7 +41,7 @@
   margin-top: 4px;
 }
 .audio-source-preview .trim-playhead {
-  font-size: 10px;
+  font-size: var(--nc-fs-caption);
 }
 .audio-converter-page .cvt-file-info .cvt-error {
   color: var(--wb-error);

@@ -57,6 +57,7 @@ export const zh = {
   browserSetting: "浏览器设置",
   pleaseEnterProxy: "需要填写完整的地址，例如：http://127.0.0.1:8000",
   proxySetting: "代理设置",
+  proxyAddress: "代理地址",
   pleaseEnterProxyFirst: "请先输入代理地址",
   dockerUrl: "Docker URL",
   pleaseEnterDockerUrl: "请输入 Docker URL",
@@ -87,8 +88,8 @@ export const zh = {
   currentVersion: "当前版本",
   selectFolder: "选择文件夹",
   selectFile: "选择文件",
-  proxySwitch: "代理开关",
-  downloadProxySwitch: "下载代理开关",
+  proxySwitch: "使用此代理",
+  downloadProxySwitch: "下载时使用代理（旧版设置）",
   proxyDescription: "该代理会对软件自带浏览器以及下载时生效",
   useImmersiveSniffing: "使用沉浸式嗅探",
   immersiveSniffingDescription:

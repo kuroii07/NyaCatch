@@ -1,0 +1,20 @@
+html .nc-list-motion {
+  position: relative;
+}
+html .nc-list-motion > .nc-list-ghost {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  transform: none;
+}
+/* Scope frozen decoration to ghosts; live controls keep all existing motion. */
+html .nc-list-motion > .nc-list-ghost,
+html .nc-list-motion > .nc-list-ghost * {
+  animation: none;
+  transition: none;
+  pointer-events: none;
+}

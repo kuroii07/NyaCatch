@@ -1,0 +1,56 @@
+/* Specificity deliberately exceeds page/theme rules, regardless of chunk order. */
+html .nc-sliding-tabs.nc-sliding-tabs {
+  position: relative;
+  isolation: isolate;
+}
+html .nc-sliding-tabs.nc-sliding-tabs > button {
+  position: relative;
+  z-index: 1;
+}
+html .nc-sliding-tabs.nc-sliding-tabs > .nc-sliding-indicator {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 0;
+  display: block;
+  box-sizing: border-box;
+  pointer-events: none;
+  transform-origin: 0 0;
+  opacity: 0;
+  transition: none;
+}
+.nc-sliding-indicator--pill {
+  border-radius: var(--nc-r-md);
+  background: var(--wb-soft);
+}
+.nc-sliding-indicator--underline {
+  border-radius: 3px 3px 0 0;
+  background: var(--wb-accent);
+}
+.v4-output-tabs > .nc-sliding-indicator--pill {
+  border: 1px solid var(--wb-focus, #d1aa30);
+  background: var(--wb-accent);
+}
+.p-view-tabs > .nc-sliding-indicator--pill {
+  border: 1px solid var(--wb-line);
+}
+.s-navigation > .nc-sliding-indicator--pill {
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 -2px 0 var(--wb-focus);
+}
+/* Original selection remains the fallback until a visible, enabled target exists. */
+html
+  .nc-sliding-tabs.nc-sliding-tabs:has(> .nc-sliding-indicator[data-ready])
+  > button:is(
+    [aria-checked="true"],
+    [aria-selected="true"],
+    [aria-pressed="true"]
+  ) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+html
+  .cvt-tabs.nc-sliding-tabs:has(> .nc-sliding-indicator[data-ready])
+  > button[aria-selected="true"]::after {
+  content: none;
+}

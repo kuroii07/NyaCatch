@@ -40,16 +40,16 @@ export const settingsTranslations = {
     sThemeDesc_sakura: "粉白与樱粉，细腻明快",
     sThemeDesc_sunset: "杏白与暖橙，明亮有活力",
     sSelected: "已选用",
-    sProxyHint: "代理地址与现有两个开关在这里集中配置。",
-    sProxyScope:
-      "仅更改喵拾内部网络设置，不修改系统或其他软件。链接解析与新版下载沿用“代理开关”；“下载代理开关”保留原有作用范围。",
+    sProxyHint: "设置喵拾使用的代理地址。",
+    sProxyScope: "仅应用于喵拾，不修改系统或其他软件的代理设置。",
     sProxyAddressHint:
       "支持 http://、https://、socks5:// 与 socks5h:// 地址；留空表示未配置。",
     sProxyInvalid: "请输入包含协议和主机的有效代理地址。",
     sProxyRequired: "开启代理前请先填写有效地址。",
     sProxySwitchHint:
-      "开启时使用上述地址；关闭时素材浏览跟随系统代理。链接解析和下载保留现有开关语义。",
-    sDownloadProxyHint: "保留已有下载代理设置；其作用范围沿用当前实现。",
+      "开启后，链接解析、新下载和素材浏览使用上述地址；关闭后，解析与下载不使用此地址，素材浏览跟随系统代理。",
+    sDownloadProxyHint:
+      "此项仅保留旧版偏好，当前下载流程不读取此开关；请通过上方“使用此代理”控制下载代理。",
     sApply: "应用更改",
     sResetDraft: "还原未保存内容",
     sSaved: "已保存",
@@ -150,17 +150,17 @@ export const settingsTranslations = {
     sThemeDesc_sakura: "Blush white and pink, gentle and bright",
     sThemeDesc_sunset: "Apricot white and orange, warm and lively",
     sSelected: "Selected",
-    sProxyHint: "Configure the proxy address and both existing switches here.",
+    sProxyHint: "Set the proxy address used by NyaCatch.",
     sProxyScope:
-      "Applies only within NyaCatch; system and other app settings stay unchanged. Link parsing and the new downloader keep using Proxy switch. Download proxy switch retains its existing scope.",
+      "Applies only within NyaCatch; system and other app proxy settings stay unchanged.",
     sProxyAddressHint:
       "Use http://, https://, socks5:// or socks5h://. Leave empty if unused.",
     sProxyInvalid: "Enter a valid proxy URL with a scheme and host.",
     sProxyRequired: "Enter a valid address before enabling a proxy.",
     sProxySwitchHint:
-      "On: use this address. Off: media browsing follows the system proxy. Parsing and downloading retain their existing switch behavior.",
+      "On: link parsing, new downloads and media browsing use this address. Off: parsing and downloads do not use this address; media browsing follows the system proxy.",
     sDownloadProxyHint:
-      "Keep the existing download proxy preference and its current scope.",
+      "Saved for compatibility. Current downloads do not read this switch; use the switch above to control their proxy.",
     sApply: "Apply changes",
     sResetDraft: "Discard unsaved changes",
     sSaved: "Saved",
